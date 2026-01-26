@@ -4,14 +4,14 @@ A Chrome extension that helps you create better, more effective prompts for AI t
 
 **No API key required!** Uses your existing AI platform accounts.
 
-![Whisper AI](https://img.shields.io/badge/Version-1.0.0-6366F1?style=flat-square)
+![Whisper AI](https://img.shields.io/badge/Version-1.1.0-6366F1?style=flat-square)
 ![Chrome Extension](https://img.shields.io/badge/Platform-Chrome-4285F4?style=flat-square&logo=googlechrome&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-10B981?style=flat-square)
 
 ## ✨ Features
 
-- **🎯 Smart Prompt Enhancement** - Transform vague prompts into detailed, effective ones
-- **📚 Template Library** - Access 12+ pre-built prompt templates for coding, writing, analysis, and more
+- **🎯 Advanced Prompt Enhancement** - Transform vague prompts into structured, effective ones using proven prompt engineering
+- **📚 12+ Pro Templates** - Pre-built templates with [ROLE], [CONTEXT], [TASK], [FORMAT], [QUALITY] structure
 - **👤 Personalized Suggestions** - Get recommendations based on your role and industry
 - **🌐 Multi-Platform Support** - Works on ChatGPT, Claude, Gemini, and Grok
 - **📊 Prompt History** - Track and reuse your enhanced prompts
@@ -42,9 +42,55 @@ Or open `scripts/generate-icons.html` in your browser and download icons.
 ### 3. Complete Setup
 
 1. Click the Whisper AI extension icon
-2. Select your **role** (Developer, Marketer, PM, etc.)
-3. Select your **industry** (Tech, Finance, Healthcare, etc.)
-4. You're ready to go!
+2. Go through the walkthrough tutorial
+3. Select your **role** (Developer, Marketer, PM, etc.)
+4. Select your **industry** (Tech, Finance, Healthcare, etc.)
+5. You're ready to go!
+
+## 🧠 Advanced Prompt Engineering System
+
+Whisper AI v1.1.0 introduces a professional prompt engineering system based on best practices:
+
+### Template Structure (7 Core Components)
+
+| Component | Purpose | Priority |
+|-----------|---------|----------|
+| **[ROLE]** | Define AI's expertise/persona | 🔴 Critical |
+| **[CONTEXT]** | Background information & constraints | 🔴 Critical |
+| **[TASK]** | Clear, specific instruction | 🔴 Critical |
+| **[FORMAT]** | Desired output structure | 🟡 Important |
+| **[EXAMPLES]** | Show desired input/output patterns | 🟡 Important |
+| **[CONSTRAINTS]** | Limitations & requirements | 🟢 Optional |
+| **[QUALITY]** | Success criteria & standards | 🟢 Optional |
+
+### Before/After Example
+
+**❌ Before (Generic Prompt):**
+```
+Review this code
+```
+
+**✅ After (Enhanced with Whisper AI):**
+```
+[ROLE] Senior software engineer with 10+ years of experience in code review
+
+[TASK]
+Review the following code comprehensively:
+...
+
+[FORMAT]
+## 🔴 Critical Issues (Must Fix)
+## 🟡 Warnings (Should Fix)
+## 🟢 Suggestions (Nice to Have)
+## 📊 Overall Assessment
+
+[QUALITY]
+- Be specific with line references
+- Provide working code fixes
+- Prioritize by severity
+```
+
+**Result:** 70%+ more actionable feedback with specific, prioritized issues
 
 ## 📁 Project Structure
 
@@ -57,11 +103,16 @@ whisper-ai/
 │   └── popup.js              # Popup logic
 ├── background/
 │   └── service-worker.js     # Background service worker
-├── content/platforms/
-│   ├── chatgpt.js            # ChatGPT content script
-│   ├── claude.js             # Claude content script
-│   ├── gemini.js             # Gemini content script
-│   └── grok.js               # Grok content script
+├── content/
+│   ├── lib/
+│   │   └── enhancer.js       # Advanced enhancement engine
+│   └── platforms/
+│       ├── chatgpt.js        # ChatGPT content script
+│       ├── claude.js         # Claude content script
+│       ├── gemini.js         # Gemini content script
+│       └── grok.js           # Grok content script
+├── docs/
+│   └── PROMPT_ENGINEERING_SYSTEM.md  # Complete documentation
 ├── styles/
 │   └── widget.css            # Floating widget styles
 ├── assets/icons/             # Extension icons
@@ -84,29 +135,32 @@ whisper-ai/
 
 When you're on a supported AI platform:
 1. Type a prompt (20+ characters)
-2. An "Enhance with Whisper" button appears
+2. An "Enhance" button appears in the top-right of the textarea
 3. Click to enhance your prompt
 4. Review the enhanced version with improvement tags
 5. Click "Use Enhanced" to apply it
 
-### Templates
+### Template Categories
 
-Categories include:
-- **Coding**: Code review, debugging, API documentation
-- **Writing**: Blog posts, emails, explanations
-- **Analysis**: Data analysis, SWOT, meeting summaries
-- **Creative**: Stories, product descriptions, brainstorming
+| Category | Templates | Best For |
+|----------|-----------|----------|
+| 💻 **Coding** | Code Review Pro, Debug Detective, API Docs | Developers |
+| ✍️ **Writing** | Blog Post Pro, Email Composer, Concept Explainer | Content creators |
+| 📊 **Analysis** | Data Analysis Pro, SWOT Analysis, Meeting Summarizer | Analysts, PMs |
+| 🎨 **Creative** | Idea Generator, Product Copy Pro, Story Crafter | Marketers, Writers |
 
 ## ⚙️ How Enhancement Works
 
-Whisper AI uses smart prompt engineering techniques to improve your prompts:
+The advanced `WhisperEnhancer` engine analyzes your prompt and applies:
 
-1. **Role Context** - Adds perspective based on your profile (e.g., "As a developer...")
-2. **Output Format** - Requests structured responses with headers/lists
-3. **Specificity** - Asks for concrete examples and details
-4. **Actionable Focus** - Emphasizes practical, usable insights
+1. **Intent Detection** - Identifies if you're asking about code, writing, analysis, etc.
+2. **Structure Analysis** - Checks for missing elements (role, format, quality criteria)
+3. **Role Context** - Adds persona based on your profile ("As a developer...")
+4. **Industry Context** - Incorporates your industry for relevant examples
+5. **Format Guidance** - Adds appropriate output structure for your intent
+6. **Quality Markers** - Specifies success criteria and expectations
 
-The enhancement happens locally - no external API calls needed!
+All enhancement happens **locally** - no external API calls needed!
 
 ## 🌐 Supported Platforms
 
@@ -123,6 +177,7 @@ Access settings from the popup:
 - **Profile**: Update your role and industry for personalized enhancements
 - **Auto-enhance**: Toggle automatic enhancement suggestions
 - **Show widget**: Enable/disable the floating widget on AI sites
+- **Watch Tutorial**: Re-watch the onboarding walkthrough
 
 ## 🛠️ Development
 
@@ -143,6 +198,19 @@ npm install
 
 # Generate icons
 npm run generate-icons
+```
+
+### Version Management
+
+```bash
+# Bump patch version (1.0.0 -> 1.0.1)
+npm run version:patch
+
+# Bump minor version (1.0.0 -> 1.1.0)
+npm run version:minor
+
+# Bump major version (1.0.0 -> 2.0.0)
+npm run version:major
 ```
 
 ### Testing
@@ -174,8 +242,11 @@ MIT License - feel free to use and modify!
 
 ## 🗺️ Roadmap
 
-- [ ] More advanced enhancement algorithms
-- [ ] Custom enhancement templates
+- [x] ~~Advanced prompt engineering system~~
+- [x] ~~7-component template structure~~
+- [x] ~~Intent-based format suggestions~~
+- [ ] Variable/placeholder system for templates
+- [ ] Custom template editor
 - [ ] Keyboard shortcuts
 - [ ] Export/import prompt library
 - [ ] Team sharing features

@@ -451,41 +451,33 @@
     isEnhancing = false;
   }
 
-  // Simulate enhancement (local enhancement logic)
+  // Use the advanced WhisperEnhancer for prompt enhancement
   async function simulateEnhancement(prompt, profile) {
-    const enhancements = [];
+    // Use the advanced enhancer if available
+    if (typeof WhisperEnhancer !== 'undefined') {
+      return WhisperEnhancer.enhance(prompt, profile);
+    }
+    
+    // Fallback to basic enhancement
     let enhanced = prompt.trim();
     
-    const roleContexts = {
-      developer: 'As a software developer, ',
-      marketer: 'From a marketing perspective, ',
-      product: 'As a product manager, ',
-      designer: 'From a design standpoint, ',
-      writer: 'As a content creator, ',
-      analyst: 'From an analytical perspective, ',
-      student: 'As a student learning this topic, ',
-      business: 'From a business perspective, '
-    };
-    
-    if (profile.role && roleContexts[profile.role] && !enhanced.toLowerCase().includes('as a')) {
-      enhanced = roleContexts[profile.role] + enhanced.charAt(0).toLowerCase() + enhanced.slice(1);
-      enhancements.push('context');
+    if (profile.role && !enhanced.toLowerCase().includes('as a')) {
+      const rolePrefix = {
+        developer: 'As a software developer',
+        marketer: 'From a marketing perspective',
+        product: 'As a product manager',
+        designer: 'From a design standpoint',
+        writer: 'As a content creator',
+        analyst: 'From an analytical perspective',
+        student: 'As a student learning this topic',
+        business: 'From a business perspective'
+      };
+      if (rolePrefix[profile.role]) {
+        enhanced = `${rolePrefix[profile.role]}, ${enhanced.charAt(0).toLowerCase() + enhanced.slice(1)}`;
+      }
     }
     
-    if (!enhanced.includes('format') && !enhanced.includes('structure') && !enhanced.includes('list') && !enhanced.includes('steps')) {
-      enhanced += '\n\nPlease structure your response clearly with headers or numbered points where appropriate.';
-      enhancements.push('format');
-    }
-    
-    if (prompt.length < 100 && !enhanced.includes('specific') && !enhanced.includes('detailed')) {
-      enhanced += ' Be specific and provide concrete examples where relevant.';
-      enhancements.push('specificity');
-    }
-    
-    if (!enhanced.includes('actionable') && !enhanced.includes('practical') && !enhanced.includes('how to')) {
-      enhanced += ' Focus on actionable and practical insights.';
-      enhancements.push('actionable');
-    }
+    enhanced += '\n\nPlease structure your response clearly with sections and examples. Be specific and actionable.';
     
     return enhanced;
   }
@@ -502,27 +494,29 @@
 
   // Analyze improvements made
   function analyzeImprovements(original, enhanced) {
+    // Use the advanced enhancer if available
+    if (typeof WhisperEnhancer !== 'undefined') {
+      return WhisperEnhancer.getImprovements(original, enhanced);
+    }
+    
+    // Fallback analysis
     const improvements = [];
     
     if (enhanced.length > original.length * 1.2) {
       improvements.push('Added context');
     }
-    if (enhanced.includes('format') || enhanced.includes('structure') || enhanced.includes('headers')) {
+    if (enhanced.includes('[FORMAT]') || enhanced.includes('structure')) {
       improvements.push('Output format');
     }
-    if (enhanced.includes('specific') || enhanced.includes('concrete') || enhanced.includes('examples')) {
-      improvements.push('Specificity');
+    if (enhanced.includes('[QUALITY]') || enhanced.includes('specific')) {
+      improvements.push('Quality criteria');
     }
-    if (enhanced.includes('actionable') || enhanced.includes('practical')) {
-      improvements.push('Actionable');
-    }
-    if (enhanced.includes('As a') || enhanced.includes('perspective')) {
+    if (enhanced.includes('[ROLE]') || enhanced.includes('As a')) {
       improvements.push('Role context');
     }
     
     if (improvements.length === 0) {
-      improvements.push('Clarity');
-      improvements.push('Structure');
+      improvements.push('Optimized structure');
     }
     
     return improvements.slice(0, 4);

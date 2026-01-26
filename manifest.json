@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Whisper AI - Smart Prompt Builder",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Enhance your AI prompts instantly. Get better results from ChatGPT, Claude, Gemini, and Grok with smart prompt suggestions.",
   "permissions": [
     "storage",
@@ -41,19 +41,19 @@
         "https://chat.openai.com/*",
         "https://chatgpt.com/*"
       ],
-      "js": ["content/platforms/chatgpt.js"],
+      "js": ["content/lib/enhancer.js", "content/platforms/chatgpt.js"],
       "css": ["styles/widget.css"],
       "run_at": "document_idle"
     },
     {
       "matches": ["https://claude.ai/*"],
-      "js": ["content/platforms/claude.js"],
+      "js": ["content/lib/enhancer.js", "content/platforms/claude.js"],
       "css": ["styles/widget.css"],
       "run_at": "document_idle"
     },
     {
       "matches": ["https://gemini.google.com/*"],
-      "js": ["content/platforms/gemini.js"],
+      "js": ["content/lib/enhancer.js", "content/platforms/gemini.js"],
       "css": ["styles/widget.css"],
       "run_at": "document_idle"
     },
@@ -62,7 +62,7 @@
         "https://grok.com/*",
         "https://x.com/i/grok*"
       ],
-      "js": ["content/platforms/grok.js"],
+      "js": ["content/lib/enhancer.js", "content/platforms/grok.js"],
       "css": ["styles/widget.css"],
       "run_at": "document_idle"
     }
