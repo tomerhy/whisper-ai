@@ -216,7 +216,7 @@ Please structure your response with:
     return markers;
   },
 
-  // Main enhancement function
+  // Main enhancement function - produces clean, natural output (no technical tags)
   enhance(prompt, profile = {}) {
     if (!prompt || prompt.length < this.config.minPromptLength) {
       return prompt;
@@ -227,71 +227,35 @@ Please structure your response with:
     const roleContext = this.getRoleContext(profile);
     
     let enhanced = prompt.trim();
-    const components = [];
+    const parts = [];
 
-    // 1. Add role context if not present
+    // 1. Add role context naturally (no [ROLE] tag)
     if (!analysis.hasRole && roleContext) {
-      components.push({
-        type: 'role',
-        content: `[ROLE] ${roleContext.prefix} with focus on ${roleContext.focus}`
-      });
+      parts.push(`${roleContext.prefix}, I need your help with the following:`);
     }
 
-    // 2. Add industry context if available
-    if (profile.industry && !prompt.toLowerCase().includes(profile.industry)) {
-      const industryContext = this.getIndustryContext(profile.industry);
-      components.push({
-        type: 'context',
-        content: `[CONTEXT] This is for ${industryContext}`
-      });
-    }
+    // 2. Add the original prompt
+    parts.push(enhanced);
 
-    // 3. The original task/prompt
-    components.push({
-      type: 'task',
-      content: `[TASK]\n${enhanced}`
-    });
-
-    // 4. Add format guidance if not present
+    // 3. Add format guidance naturally (no [FORMAT] tag)
     if (!analysis.hasFormat) {
-      const format = this.getFormatSuggestion(intent);
-      components.push({
-        type: 'format',
-        content: `[FORMAT]${format}`
-      });
+      const format = this.getFormatSuggestionSimple(intent);
+      if (format) {
+        parts.push(format);
+      }
     }
 
-    // 5. Add quality markers
-    const qualityMarkers = this.getQualityMarkers(analysis, intent);
+    // 4. Add quality markers naturally
+    const qualityMarkers = this.getQualityMarkersSimple(analysis, intent);
     if (qualityMarkers.length > 0) {
-      components.push({
-        type: 'quality',
-        content: `[QUALITY]\n${qualityMarkers.map(m => `- ${m}`).join('\n')}`
-      });
+      parts.push(qualityMarkers.join(' '));
     }
 
-    // Assemble the enhanced prompt
-    const hasStructuredComponents = components.some(c => c.type === 'role' || c.type === 'context');
-    
-    if (hasStructuredComponents) {
-      // Use structured format with tags
-      enhanced = components.map(c => c.content).join('\n\n');
-    } else {
-      // Lighter enhancement for already well-formed prompts
-      enhanced = prompt.trim();
-      
-      if (!analysis.hasFormat) {
-        enhanced += '\n\n' + this.getFormatSuggestion(intent).trim();
-      }
-      
-      if (qualityMarkers.length > 0 && !analysis.hasQuality) {
-        enhanced += '\n\n' + qualityMarkers.map(m => `• ${m}`).join('\n');
-      }
-    }
+    // Assemble the enhanced prompt naturally
+    enhanced = parts.join('\n\n');
 
     // Ensure we don't over-enhance
     if (enhanced.length > prompt.length * this.config.maxEnhancementRatio) {
-      // Fall back to lighter enhancement
       enhanced = prompt.trim();
       if (!analysis.hasFormat) {
         enhanced += '\n\nPlease structure your response clearly with sections and examples.';
@@ -304,31 +268,63 @@ Please structure your response with:
     return enhanced;
   },
 
-  // Analyze what improvements were made
+  // Simpler format suggestions without complex markdown
+  getFormatSuggestionSimple(intent) {
+    const formats = {
+      code: 'Please provide complete working code with comments explaining key parts.',
+      analysis: 'Please structure your analysis with key findings, insights, and actionable recommendations.',
+      writing: 'Please include a clear structure with an introduction, main points, and conclusion.',
+      explanation: 'Please explain step by step, using simple analogies and real-world examples.',
+      creative: 'Please provide multiple options with brief explanations for each.',
+      learning: 'Please explain from basics to advanced, with examples at each step.',
+      business: 'Please include analysis, recommendations, and suggested next steps.',
+      general: 'Please provide a clear, well-organized response with specific examples.'
+    };
+    return formats[intent] || formats.general;
+  },
+
+  // Simpler quality markers
+  getQualityMarkersSimple(analysis, intent) {
+    const markers = [];
+    
+    if (!analysis.hasQuality) {
+      if (intent === 'code') {
+        markers.push('Make sure the code handles edge cases and includes error handling.');
+      } else if (intent === 'analysis') {
+        markers.push('Please quantify findings where possible and distinguish facts from assumptions.');
+      } else if (analysis.wordCount < 30) {
+        markers.push('Please be specific and provide concrete examples.');
+      }
+    }
+    
+    return markers;
+  },
+
+  // Analyze what improvements were made (user-friendly labels)
   getImprovements(original, enhanced) {
     const improvements = [];
     const originalAnalysis = this.analyzeStructure(original);
     const enhancedLower = enhanced.toLowerCase();
     
-    if (enhanced.includes('[ROLE]')) {
-      improvements.push('Added role context');
+    if (enhancedLower.includes('as a') || enhancedLower.includes('perspective') || enhancedLower.includes('help with')) {
+      improvements.push('Added context');
     }
-    if (enhanced.includes('[CONTEXT]')) {
-      improvements.push('Added industry context');
+    if (enhancedLower.includes('structure') || enhancedLower.includes('organize') || enhancedLower.includes('section')) {
+      improvements.push('Clear structure');
     }
-    if (enhanced.includes('[FORMAT]') || (!originalAnalysis.hasFormat && enhancedLower.includes('structure'))) {
-      improvements.push('Output format');
+    if (enhancedLower.includes('specific') || enhancedLower.includes('example') || enhancedLower.includes('concrete')) {
+      improvements.push('More specific');
     }
-    if (enhanced.includes('[QUALITY]') || enhancedLower.includes('specific') || enhancedLower.includes('examples')) {
-      improvements.push('Quality criteria');
+    if (enhancedLower.includes('step') || enhancedLower.includes('explain') || enhancedLower.includes('how')) {
+      improvements.push('Better guidance');
     }
-    if (enhanced.length > original.length * 1.3) {
-      improvements.push('Added detail');
+    if (enhanced.length > original.length * 1.2) {
+      improvements.push('More detail');
     }
     
     // Ensure at least one improvement is shown
     if (improvements.length === 0) {
-      improvements.push('Optimized structure');
+      improvements.push('Optimized');
     }
     
     return improvements.slice(0, 4);

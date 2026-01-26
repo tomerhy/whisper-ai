@@ -1,593 +1,265 @@
 // ===== Whisper AI Popup Script =====
 
-// Advanced Template Data with structured prompt engineering
+// Simplified Template Data with fill-in fields
 const TEMPLATES = [
-  // ===== CODING TEMPLATES =====
+  // ===== CODING =====
   { 
     id: 1, 
-    name: 'Code Review Pro', 
+    name: 'Code Review', 
     emoji: '🔍', 
-    category: 'coding', 
-    prompt: `[ROLE] Senior software engineer with 10+ years of experience in code review, security auditing, and performance optimization
-
-[TASK]
-Review the following code comprehensively:
+    category: 'coding',
+    description: 'Get feedback on your code',
+    fields: [
+      { id: 'code', label: 'Paste your code', type: 'textarea', placeholder: 'function example() { ... }', required: true },
+      { id: 'language', label: 'Programming language', type: 'text', placeholder: 'JavaScript, Python, etc.', required: false },
+      { id: 'focus', label: 'What to focus on?', type: 'text', placeholder: 'security, performance, readability', required: false }
+    ],
+    buildPrompt: (values) => `Review this ${values.language || ''} code${values.focus ? ` focusing on ${values.focus}` : ''}:
 
 \`\`\`
-[PASTE YOUR CODE HERE]
+${values.code}
 \`\`\`
 
-[FORMAT]
-## 🔴 Critical Issues (Must Fix)
-List security vulnerabilities, bugs, or breaking issues
-
-## 🟡 Warnings (Should Fix)
-Performance issues, code smells, potential problems
-
-## 🟢 Suggestions (Nice to Have)
-Style improvements, best practices, optimizations
-
-## 📊 Overall Assessment
-- Code Quality Score: X/10
-- Key Strengths:
-- Priority Fixes:
-
-For each issue: specify line number, explain problem, provide fix with code example.
-
-[QUALITY]
-- Be specific with line references
-- Provide working code fixes
-- Prioritize by severity and impact` 
+Please provide:
+• Critical issues that need fixing
+• Suggestions for improvement
+• Overall code quality assessment`
   },
   { 
     id: 2, 
-    name: 'Debug Detective', 
+    name: 'Fix This Bug', 
     emoji: '🐛', 
-    category: 'coding', 
-    prompt: `[ROLE] Expert debugger and software diagnostician with deep knowledge of runtime errors and systematic debugging
-
-[PROBLEM]
-Error Message:
+    category: 'coding',
+    description: 'Debug and fix errors',
+    fields: [
+      { id: 'error', label: 'Error message', type: 'textarea', placeholder: 'TypeError: Cannot read property...', required: true },
+      { id: 'code', label: 'Your code', type: 'textarea', placeholder: 'Paste the code causing the error', required: true },
+      { id: 'expected', label: 'What should happen?', type: 'text', placeholder: 'It should return a list of users', required: false }
+    ],
+    buildPrompt: (values) => `I'm getting this error:
 \`\`\`
-[PASTE ERROR HERE]
-\`\`\`
-
-Code:
-\`\`\`
-[PASTE CODE HERE]
+${values.error}
 \`\`\`
 
-Expected behavior: [DESCRIBE EXPECTED]
-Actual behavior: [DESCRIBE ACTUAL]
-
-[TASK]
-1. Analyze the error and identify root cause
-2. Explain why this error occurs
-3. Provide step-by-step fix
-4. Suggest prevention strategies
-
-[FORMAT]
-## 🔍 Root Cause Analysis
-(What's actually happening and why)
-
-## 🛠️ Step-by-Step Fix
+In this code:
 \`\`\`
-// Fixed code here
+${values.code}
 \`\`\`
+${values.expected ? `\nExpected: ${values.expected}` : ''}
 
-## 💡 Explanation
-(Why this fix works)
-
-## 🛡️ Prevention
-(How to avoid this in the future)` 
+Please:
+1. Explain what's causing this error
+2. Show me the fixed code
+3. Explain why the fix works`
   },
   { 
     id: 3, 
-    name: 'API Documentation', 
-    emoji: '📚', 
-    category: 'coding', 
-    prompt: `[ROLE] Technical writer and API documentation specialist
+    name: 'Write Code', 
+    emoji: '💻', 
+    category: 'coding',
+    description: 'Generate code from description',
+    fields: [
+      { id: 'task', label: 'What should the code do?', type: 'textarea', placeholder: 'Create a function that validates email addresses', required: true },
+      { id: 'language', label: 'Programming language', type: 'text', placeholder: 'JavaScript', required: true },
+      { id: 'requirements', label: 'Any specific requirements?', type: 'text', placeholder: 'Must handle edge cases, include tests', required: false }
+    ],
+    buildPrompt: (values) => `Write ${values.language} code that: ${values.task}
+${values.requirements ? `\nRequirements: ${values.requirements}` : ''}
 
-[CODE]
-\`\`\`
-[PASTE YOUR API CODE/ENDPOINT HERE]
-\`\`\`
-
-[TASK]
-Generate comprehensive API documentation
-
-[FORMAT]
-## Overview
-Brief description of what this endpoint/function does
-
-## Endpoint/Signature
-\`METHOD /path\` or \`function signature\`
-
-## Parameters
-| Name | Type | Required | Description | Default |
-|------|------|----------|-------------|---------|
-
-## Request Example
-\`\`\`json
-{
-  // Example request body
-}
-\`\`\`
-
-## Response
-### Success (200)
-\`\`\`json
-{
-  // Example response
-}
-\`\`\`
-
-### Errors
-| Code | Message | Description |
-|------|---------|-------------|
-
-## Usage Examples
-### Basic Usage
-### With Options
-### Error Handling` 
+Please provide:
+• Complete, working code with comments
+• Example usage
+• Brief explanation of how it works`
   },
-  
-  // ===== WRITING TEMPLATES =====
+
+  // ===== WRITING =====
   { 
     id: 4, 
-    name: 'Blog Post Pro', 
-    emoji: '📝', 
-    category: 'writing', 
-    prompt: `[ROLE] Expert content strategist and SEO specialist with 10+ years in content marketing
+    name: 'Write Email', 
+    emoji: '📧', 
+    category: 'writing',
+    description: 'Compose professional emails',
+    fields: [
+      { id: 'purpose', label: 'Purpose of email', type: 'text', placeholder: 'Request a meeting, follow up on proposal', required: true },
+      { id: 'recipient', label: 'Who is it for?', type: 'text', placeholder: 'My manager, a client, job recruiter', required: true },
+      { id: 'tone', label: 'Tone', type: 'text', placeholder: 'Professional, friendly, formal', required: false },
+      { id: 'keypoints', label: 'Key points to include', type: 'textarea', placeholder: 'Mention the deadline, ask about budget', required: false }
+    ],
+    buildPrompt: (values) => `Write an email to ${values.recipient} for: ${values.purpose}
+${values.tone ? `Tone: ${values.tone}` : ''}
+${values.keypoints ? `\nKey points:\n${values.keypoints}` : ''}
 
-[CONTEXT]
-- Topic: [YOUR TOPIC]
-- Target Audience: [YOUR AUDIENCE]
-- Tone: professional yet approachable
-- Length: 1500 words
-
-[TASK]
-Write a comprehensive, engaging blog post that provides genuine value
-
-[FORMAT]
-## [Attention-Grabbing Headline]
-(Include power words, numbers, or questions)
-
-### Hook (First 2-3 sentences)
-Start with a surprising stat, question, or relatable pain point
-
-### Introduction
-Set context and promise value
-
-### Main Content
-Use H2 headers for 3-5 main sections. Include:
-- Practical examples
-- Data/statistics where relevant
-- [IMAGE SUGGESTION: description]
-
-### Key Takeaways
-- Bullet point summary
-- Actionable next steps
-
-### Call-to-Action
-
----
-**SEO Elements:**
-- Meta Description (155 chars):
-- Target Keywords:
-
-[QUALITY]
-- Lead with value, not fluff
-- Flesch reading score: 60+
-- Scannable with subheadings every 300 words` 
+Please provide:
+• Subject line options
+• Complete email body
+• Keep it concise and professional`
   },
   { 
     id: 5, 
-    name: 'Email Composer', 
-    emoji: '📧', 
-    category: 'writing', 
-    prompt: `[ROLE] Communication expert specializing in business writing and persuasion
+    name: 'Blog Post', 
+    emoji: '📝', 
+    category: 'writing',
+    description: 'Create engaging blog content',
+    fields: [
+      { id: 'topic', label: 'Topic', type: 'text', placeholder: '5 Tips for Better Sleep', required: true },
+      { id: 'audience', label: 'Target audience', type: 'text', placeholder: 'busy professionals, students', required: false },
+      { id: 'length', label: 'Approximate length', type: 'text', placeholder: '500 words, 1000 words', required: false }
+    ],
+    buildPrompt: (values) => `Write a blog post about: ${values.topic}
+${values.audience ? `Target audience: ${values.audience}` : ''}
+${values.length ? `Length: approximately ${values.length}` : ''}
 
-[CONTEXT]
-- Purpose: [YOUR PURPOSE]
-- Recipient: [WHO YOU'RE WRITING TO]
-- Background: [CONTEXT/SITUATION]
-- Tone: professional
-
-[TASK]
-Write an effective email that achieves the intended purpose
-
-[FORMAT]
-**Subject Line Options:**
-1. [Direct approach]
-2. [Curiosity-driven]
-3. [Benefit-focused]
-
----
-
-**Email:**
-
-[Greeting]
-
-[Opening: Context/connection - 1 sentence]
-
-[Body: Main message - 2-3 short paragraphs]
-
-[Clear Call-to-Action: Specific next step]
-
-[Professional closing]
-
----
-
-**Why This Works:**
-- [Explanation of techniques used]
-
-**Shorter Version:**
-(For busy executives)
-
-[QUALITY]
-- Subject line under 50 characters
-- Readable in under 30 seconds
-- One clear ask per email` 
+Include:
+• Catchy headline
+• Engaging introduction
+• Main content with subheadings
+• Conclusion with takeaway`
   },
   { 
     id: 6, 
-    name: 'Concept Explainer', 
-    emoji: '🧒', 
-    category: 'writing', 
-    prompt: `[ROLE] Expert educator known for making complex topics accessible through analogies
+    name: 'Explain Simply', 
+    emoji: '💡', 
+    category: 'writing',
+    description: 'Explain complex topics simply',
+    fields: [
+      { id: 'concept', label: 'What to explain?', type: 'text', placeholder: 'Machine learning, blockchain, API', required: true },
+      { id: 'audience', label: 'Explain it like I\'m...', type: 'text', placeholder: 'a beginner, 10 years old, my grandma', required: false }
+    ],
+    buildPrompt: (values) => `Explain "${values.concept}" ${values.audience ? `like I'm ${values.audience}` : 'in simple terms'}.
 
-[CONTEXT]
-- Concept: [CONCEPT TO EXPLAIN]
-- Audience Level: beginner with no prior knowledge
-- Goal: genuine understanding
-
-[TASK]
-Explain this concept in a way that creates genuine understanding
-
-[FORMAT]
-## 🎯 One-Sentence Summary
-(If you can only remember one thing...)
-
-## 🏠 The Analogy
-Real-world comparison that makes this click
-
-## 📖 The Explanation
-Build up from first principles:
-1. Start with what they already know
-2. Introduce new concept gradually
-3. Connect back to the analogy
-
-## 💡 Why It Matters
-Practical implications and applications
-
-## 🔧 Example in Action
-Concrete scenario showing this concept
-
-## ❓ Common Misconceptions
-What people often get wrong
-
-## ✅ Quick Check
-"You understand this if you can explain why..."
-
-[QUALITY]
-- No jargon without definition
-- Multiple analogies for different thinking styles
-- Build on familiar concepts` 
+Use:
+• A simple one-sentence definition
+• A real-world analogy
+• A practical example
+• Why it matters`
   },
-  
-  // ===== ANALYSIS TEMPLATES =====
+
+  // ===== ANALYSIS =====
   { 
     id: 7, 
-    name: 'Data Analysis Pro', 
+    name: 'Analyze Data', 
     emoji: '📊', 
-    category: 'analysis', 
-    prompt: `[ROLE] Senior data analyst with expertise in statistical analysis and business intelligence
+    category: 'analysis',
+    description: 'Get insights from your data',
+    fields: [
+      { id: 'data', label: 'Your data', type: 'textarea', placeholder: 'Paste numbers, CSV, or describe your data', required: true },
+      { id: 'goal', label: 'What do you want to learn?', type: 'text', placeholder: 'Find trends, identify problems', required: false }
+    ],
+    buildPrompt: (values) => `Analyze this data:
+${values.data}
+${values.goal ? `\nGoal: ${values.goal}` : ''}
 
-[CONTEXT]
-- Business Context: [YOUR CONTEXT]
-- Analysis Goal: [WHAT YOU WANT TO LEARN]
-
-[DATA]
-[PASTE YOUR DATA HERE]
-
-[TASK]
-Perform comprehensive analysis and extract actionable insights
-
-[FORMAT]
-## 📋 Executive Summary
-(3-4 bullet points - key findings only)
-
-## 📈 Key Metrics
-| Metric | Value | vs Previous | Status |
-|--------|-------|-------------|--------|
-
-## 🔍 Detailed Analysis
-
-### Trends
-- Trend 1: [description with numbers]
-
-### Patterns
-- Notable pattern with explanation
-
-### Anomalies
-- Any outliers or unexpected data
-
-### Correlations
-- Relationships found (noting correlation ≠ causation)
-
-## 💡 Insights & Recommendations
-| Finding | Implication | Recommended Action | Priority |
-|---------|-------------|-------------------|----------|
-
-## ⚠️ Limitations & Caveats
-
-[QUALITY]
-- Quantify all claims
-- Distinguish correlation from causation
-- Make recommendations specific and actionable` 
+Please provide:
+• Key insights and patterns
+• Notable findings
+• Actionable recommendations`
   },
   { 
     id: 8, 
-    name: 'SWOT Analysis', 
-    emoji: '🎯', 
-    category: 'analysis', 
-    prompt: `[ROLE] Strategic consultant with expertise in competitive analysis
+    name: 'Summarize', 
+    emoji: '📋', 
+    category: 'analysis',
+    description: 'Summarize long content',
+    fields: [
+      { id: 'content', label: 'Content to summarize', type: 'textarea', placeholder: 'Paste article, meeting notes, or document', required: true },
+      { id: 'format', label: 'Summary format', type: 'text', placeholder: 'bullet points, one paragraph', required: false }
+    ],
+    buildPrompt: (values) => `Summarize this content${values.format ? ` as ${values.format}` : ''}:
 
-[CONTEXT]
-- Subject: [YOUR SUBJECT]
-- Context: [SITUATION/MARKET]
-- Strategic Goal: [YOUR GOAL]
+${values.content}
 
-[TASK]
-Perform a comprehensive SWOT analysis with actionable strategies
-
-[FORMAT]
-## 📊 SWOT Matrix
-
-### 💪 Strengths (Internal Positives)
-| Strength | Evidence | Strategic Value |
-|----------|----------|-----------------|
-
-### 🎯 Weaknesses (Internal Negatives)
-| Weakness | Impact | Urgency to Address |
-|----------|--------|-------------------|
-
-### 🚀 Opportunities (External Positives)
-| Opportunity | Potential Impact | Feasibility |
-|-------------|------------------|-------------|
-
-### ⚠️ Threats (External Negatives)
-| Threat | Likelihood | Mitigation Strategy |
-|--------|------------|---------------------|
-
-## 🎮 Strategic Recommendations
-
-### SO Strategies (Strengths → Opportunities)
-### WO Strategies (Weaknesses → Opportunities)
-### ST Strategies (Strengths → Threats)
-### WT Strategies (Weaknesses → Threats)
-
-## 📋 Priority Action Plan
-| Action | Type | Timeline | Success Metric |
-|--------|------|----------|----------------|
-
-[QUALITY]
-- Be specific, not generic
-- Include evidence for each point
-- Make strategies actionable` 
+Include:
+• Main points
+• Key takeaways
+• Any action items mentioned`
   },
   { 
     id: 9, 
-    name: 'Meeting Summarizer', 
-    emoji: '📋', 
-    category: 'analysis', 
-    prompt: `[ROLE] Executive assistant expert in meeting facilitation and action tracking
+    name: 'Compare Options', 
+    emoji: '⚖️', 
+    category: 'analysis',
+    description: 'Compare choices pros/cons',
+    fields: [
+      { id: 'options', label: 'Options to compare', type: 'textarea', placeholder: 'Option A: React\nOption B: Vue\nOption C: Angular', required: true },
+      { id: 'criteria', label: 'What matters most?', type: 'text', placeholder: 'cost, ease of use, scalability', required: false }
+    ],
+    buildPrompt: (values) => `Compare these options:
+${values.options}
+${values.criteria ? `\nEvaluate based on: ${values.criteria}` : ''}
 
-[CONTEXT]
-Meeting Type: [TYPE: team sync, 1:1, planning, etc.]
-
-[MEETING NOTES]
-[PASTE YOUR NOTES/TRANSCRIPT HERE]
-
-[TASK]
-Extract structured summary with clear action items and decisions
-
-[FORMAT]
-## 📅 Meeting Summary
-
-### 🎯 Purpose & Outcome
-One sentence on what this meeting accomplished
-
-### ✅ Decisions Made
-| Decision | Rationale | Impact |
-|----------|-----------|--------|
-
-### 📋 Action Items
-| # | Task | Owner | Deadline | Priority |
-|---|------|-------|----------|----------|
-
-### 💬 Key Discussion Points
-- **Topic 1**: Summary of discussion and conclusions
-
-### ❓ Open Questions / Parking Lot
-- Question 1 (needs follow-up by: person)
-
-### 📅 Next Steps
-- Next meeting: [date/topic if mentioned]
-
-[QUALITY]
-- Action items must be specific and assignable
-- Include context for each decision
-- Note any disagreements or concerns raised` 
+Please provide:
+• Pros and cons for each
+• Comparison table
+• Recommendation with reasoning`
   },
-  
-  // ===== CREATIVE TEMPLATES =====
+
+  // ===== CREATIVE =====
   { 
     id: 10, 
-    name: 'Idea Generator', 
-    emoji: '💡', 
-    category: 'creative', 
-    prompt: `[ROLE] Creative strategist and innovation consultant with expertise in design thinking
+    name: 'Brainstorm Ideas', 
+    emoji: '🧠', 
+    category: 'creative',
+    description: 'Generate creative ideas',
+    fields: [
+      { id: 'challenge', label: 'What do you need ideas for?', type: 'textarea', placeholder: 'Marketing campaign for a new app, birthday gift ideas', required: true },
+      { id: 'constraints', label: 'Any constraints?', type: 'text', placeholder: 'low budget, needs to be quick', required: false }
+    ],
+    buildPrompt: (values) => `Brainstorm ideas for: ${values.challenge}
+${values.constraints ? `Constraints: ${values.constraints}` : ''}
 
-[CONTEXT]
-- Challenge: [YOUR CHALLENGE/PROBLEM]
-- Background: [RELEVANT CONTEXT]
-- Constraints: [ANY LIMITATIONS]
-
-[TASK]
-Generate diverse, actionable ideas ranging from safe to bold
-
-[FORMAT]
-## 🎯 Challenge Reframe
-Alternative ways to think about this problem
-
-## 💡 Ideas Spectrum
-
-### 🟢 Safe Bets (Low risk, proven approaches)
-| Idea | Why It Works | Effort | Impact |
-|------|--------------|--------|--------|
-
-### 🟡 Strategic Moves (Moderate risk, good potential)
-| Idea | Innovation | Effort | Impact |
-|------|------------|--------|--------|
-
-### 🔴 Moonshots (High risk, high reward)
-| Idea | What If... | Breakthrough Potential |
-|------|------------|----------------------|
-
-### 🎲 Wild Cards (Unexpected angles)
-| Idea | Surprising Because... |
-|------|----------------------|
-
-## ⭐ Top 3 Recommendations
-1. **[Idea]**: Because [reasoning]
-2. **[Idea]**: Because [reasoning]
-3. **[Idea]**: Because [reasoning]
-
-## 📋 Quick Start
-Fastest path to testing the top idea
-
-[QUALITY]
-- At least 10 distinct ideas
-- Range from obvious to unexpected
-- Include rationale for each` 
+Please provide:
+• 10 diverse ideas ranging from safe to bold
+• Brief explanation for each
+• Your top 3 recommendations`
   },
   { 
     id: 11, 
-    name: 'Product Copy Pro', 
+    name: 'Product Copy', 
     emoji: '🛍️', 
-    category: 'creative', 
-    prompt: `[ROLE] Conversion copywriter specializing in e-commerce and product marketing
+    category: 'creative',
+    description: 'Write compelling product descriptions',
+    fields: [
+      { id: 'product', label: 'Product name & description', type: 'textarea', placeholder: 'Wireless earbuds with 24-hour battery', required: true },
+      { id: 'audience', label: 'Target customer', type: 'text', placeholder: 'fitness enthusiasts, commuters', required: false },
+      { id: 'features', label: 'Key features', type: 'text', placeholder: 'waterproof, noise canceling', required: false }
+    ],
+    buildPrompt: (values) => `Write product copy for: ${values.product}
+${values.audience ? `Target customer: ${values.audience}` : ''}
+${values.features ? `Key features: ${values.features}` : ''}
 
-[CONTEXT]
-- Product: [YOUR PRODUCT]
-- Target Customer: [WHO BUYS THIS]
-- Key Features: [MAIN FEATURES]
-- Price Point: mid-range
-
-[TASK]
-Write compelling product copy that drives conversions
-
-[FORMAT]
-## 🏷️ Headlines (Pick One)
-1. [Benefit-focused]
-2. [Problem-solution]
-3. [Social proof angle]
-
-## 📝 Short Description (50 words)
-For product cards and previews
-
-## 📄 Full Description
-
-### The Hook
-(Address pain point or desire immediately)
-
-### Key Benefits
-✨ **[Benefit 1]**: [How it helps them]
-✨ **[Benefit 2]**: [How it helps them]  
-✨ **[Benefit 3]**: [How it helps them]
-
-### Features That Matter
-(Technical specs that support the benefits)
-
-### Social Proof
-[Testimonial format or usage statistics]
-
-### Risk Reversal
-[Guarantee, return policy, or trust builder]
-
-### Call-to-Action
-
-## 📱 Variations
-- **Instagram Caption**: 
-- **Tweet**: 
-- **Email Subject Line**: 
-
-[QUALITY]
-- Benefits before features
-- Sensory and emotional language
-- Address objections preemptively` 
+Please provide:
+• 3 headline options
+• Short description (50 words)
+• Full description highlighting benefits
+• Call-to-action`
   },
   { 
     id: 12, 
-    name: 'Story Crafter', 
-    emoji: '✨', 
-    category: 'creative', 
-    prompt: `[ROLE] Published author and creative writing instructor
+    name: 'Social Post', 
+    emoji: '📱', 
+    category: 'creative',
+    description: 'Create social media content',
+    fields: [
+      { id: 'topic', label: 'What\'s the post about?', type: 'textarea', placeholder: 'Launching a new feature, sharing a tip', required: true },
+      { id: 'platform', label: 'Platform', type: 'text', placeholder: 'Twitter, LinkedIn, Instagram', required: false },
+      { id: 'goal', label: 'Goal', type: 'text', placeholder: 'engagement, awareness, drive traffic', required: false }
+    ],
+    buildPrompt: (values) => `Write a ${values.platform || 'social media'} post about: ${values.topic}
+${values.goal ? `Goal: ${values.goal}` : ''}
 
-[CONTEXT]
-- Genre: [YOUR GENRE]
-- Theme: [CENTRAL THEME]
-- Setting: [WHERE/WHEN]
-- Tone: engaging
-- Length: 1000 words
-
-[TASK]
-Craft a compelling story with strong narrative structure
-
-[FORMAT]
-# [Story Title]
-
-## Opening Hook
-(First paragraph that demands the reader continues)
-
-## Story
-(Full narrative with:)
-- Vivid sensory details
-- Character with clear motivation
-- Rising tension
-- Meaningful dialogue
-- Satisfying resolution
-
----
-
-## 📝 Craft Notes
-**Narrative Techniques Used:**
-- [Technique 1]: How it serves the story
-
-**Theme Exploration:**
-How the theme is woven throughout
-
-**Character Arc:**
-Brief analysis of character development
-
-[QUALITY]
-- Show, don't tell
-- Distinct character voices
-- Sensory-rich descriptions
-- Memorable opening and closing lines` 
+Please provide:
+• 3 post variations
+• Relevant hashtag suggestions
+• Best posting tips`
   }
 ];
 
 const TIPS = [
-  "Add specific output format requirements to get structured responses.",
-  "Include relevant context about your role and goals for personalized answers.",
-  "Use examples to show the AI exactly what you're looking for.",
-  "Set constraints like word count or complexity level for focused outputs.",
-  "Ask the AI to think step-by-step for complex reasoning tasks.",
-  "Specify the tone and audience for your content.",
-  "Request multiple options or alternatives when brainstorming."
+  "Fill in the required fields and click 'Create Prompt' to generate your enhanced prompt.",
+  "The more details you provide, the better your results will be.",
+  "You can use templates as a starting point and customize them.",
+  "Click the Enhance button on AI platforms to improve any prompt.",
+  "Your role and industry settings help personalize suggestions."
 ];
 
 // State
@@ -600,10 +272,13 @@ let state = {
   },
   settings: {
     autoEnhance: true,
-    showWidget: true
+    showWidget: true,
+    simpleMode: true
   },
   history: []
 };
+
+let selectedTemplate = null;
 
 // DOM Elements
 const screens = {
@@ -650,7 +325,6 @@ async function saveState() {
 // Initialize UI based on state
 function initializeUI() {
   if (!state.isOnboarded || !state.hasSeenWalkthrough) {
-    // Show walkthrough for first-time users
     showScreen('walkthrough');
     showWalkthroughStep(1);
   } else {
@@ -669,7 +343,6 @@ function showScreen(screenName) {
 
 // Setup walkthrough event listeners
 function setupWalkthroughListeners() {
-  // Step navigation
   document.getElementById('skipWalkthrough')?.addEventListener('click', skipWalkthrough);
   document.getElementById('nextStep1')?.addEventListener('click', () => showWalkthroughStep(2));
   document.getElementById('prevStep2')?.addEventListener('click', () => showWalkthroughStep(1));
@@ -683,7 +356,6 @@ function setupWalkthroughListeners() {
   document.getElementById('prevStep6')?.addEventListener('click', () => showWalkthroughStep(5));
   document.getElementById('finishWalkthrough')?.addEventListener('click', finishWalkthrough);
   
-  // Watch tutorial button in settings
   document.getElementById('watchTutorialBtn')?.addEventListener('click', () => {
     showScreen('walkthrough');
     showWalkthroughStep(1);
@@ -694,18 +366,15 @@ function setupWalkthroughListeners() {
 function showWalkthroughStep(step) {
   currentWalkthroughStep = step;
   
-  // Hide all steps
   document.querySelectorAll('.walkthrough-step').forEach(s => {
     s.classList.remove('active');
   });
   
-  // Show current step
   const currentStep = document.querySelector(`.walkthrough-step[data-step="${step}"]`);
   if (currentStep) {
     currentStep.classList.add('active');
   }
   
-  // Pre-fill profile if already set
   if (step === 6 && state.userProfile.role) {
     document.getElementById('walkthroughRole').value = state.userProfile.role;
     document.getElementById('walkthroughIndustry').value = state.userProfile.industry;
@@ -715,7 +384,6 @@ function showWalkthroughStep(step) {
 // Skip walkthrough
 async function skipWalkthrough() {
   if (!state.isOnboarded) {
-    // If not onboarded, at least show minimal setup
     showWalkthroughStep(6);
   } else {
     state.hasSeenWalkthrough = true;
@@ -731,7 +399,6 @@ async function finishWalkthrough() {
   const industry = document.getElementById('walkthroughIndustry').value;
   
   if (!role || !industry) {
-    // Highlight required fields
     if (!role) document.getElementById('walkthroughRole').style.borderColor = '#EF4444';
     if (!industry) document.getElementById('walkthroughIndustry').style.borderColor = '#EF4444';
     return;
@@ -749,33 +416,6 @@ async function finishWalkthrough() {
 
 // Setup event listeners
 function setupEventListeners() {
-  // Legacy onboarding navigation (kept for backwards compatibility)
-  document.getElementById('nextStep1Legacy')?.addEventListener('click', () => {
-    const role = document.getElementById('userRole').value;
-    if (role) {
-      state.userProfile.role = role;
-      document.getElementById('step1').classList.add('hidden');
-      document.getElementById('step2').classList.remove('hidden');
-    }
-  });
-
-  document.getElementById('backStep2Legacy')?.addEventListener('click', () => {
-    document.getElementById('step2').classList.add('hidden');
-    document.getElementById('step1').classList.remove('hidden');
-  });
-
-  document.getElementById('finishSetup')?.addEventListener('click', async () => {
-    const industry = document.getElementById('userIndustry').value;
-    if (industry) {
-      state.userProfile.industry = industry;
-      state.isOnboarded = true;
-      state.hasSeenWalkthrough = true;
-      await saveState();
-      showScreen('main');
-      updateMainScreen();
-    }
-  });
-
   // Main screen actions
   document.getElementById('settingsBtn').addEventListener('click', () => {
     populateSettings();
@@ -803,6 +443,7 @@ function setupEventListeners() {
 
   // Back buttons
   document.getElementById('backFromTemplates').addEventListener('click', () => {
+    selectedTemplate = null;
     showScreen('main');
   });
 
@@ -831,7 +472,7 @@ function setupEventListeners() {
         isOnboarded: false,
         hasSeenWalkthrough: false,
         userProfile: { role: '', industry: '' },
-        settings: { autoEnhance: true, showWidget: true },
+        settings: { autoEnhance: true, showWidget: true, simpleMode: true },
         history: []
       };
       await saveState();
@@ -859,7 +500,6 @@ function setupEventListeners() {
 
 // Update main screen
 function updateMainScreen() {
-  // Update platform icons based on current page
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const url = tabs[0]?.url || '';
     document.querySelectorAll('.platform-icon').forEach(icon => {
@@ -899,7 +539,7 @@ function detectCurrentPlatform() {
   });
 }
 
-// Render templates in main screen
+// Render templates in main screen (quick access)
 function renderTemplates() {
   const container = document.getElementById('templatesList');
   const popularTemplates = TEMPLATES.slice(0, 3);
@@ -909,7 +549,7 @@ function renderTemplates() {
       <div class="template-emoji">${template.emoji}</div>
       <div class="template-info">
         <div class="template-name">${template.name}</div>
-        <div class="template-category">${template.category}</div>
+        <div class="template-category">${template.description}</div>
       </div>
       <svg class="template-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M9 18l6-6-6-6"/>
@@ -917,52 +557,241 @@ function renderTemplates() {
     </div>
   `).join('');
 
-  // Add click handlers
   container.querySelectorAll('.template-item').forEach(item => {
-    item.addEventListener('click', () => useTemplate(parseInt(item.dataset.id)));
+    item.addEventListener('click', () => {
+      showScreen('templates');
+      showTemplateWizard(parseInt(item.dataset.id));
+    });
   });
 }
 
-// Render full templates list
+// Render full templates list with cards
 function renderFullTemplates(category) {
   const container = document.getElementById('templatesGrid');
   const filtered = category === 'all' 
     ? TEMPLATES 
     : TEMPLATES.filter(t => t.category === category);
   
-  container.innerHTML = filtered.map(template => `
-    <div class="template-item" data-id="${template.id}">
-      <div class="template-emoji">${template.emoji}</div>
-      <div class="template-info">
-        <div class="template-name">${template.name}</div>
-        <div class="template-category">${template.category}</div>
-      </div>
-      <svg class="template-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M9 18l6-6-6-6"/>
-      </svg>
+  // Check if we're in wizard mode
+  if (selectedTemplate) {
+    renderTemplateWizard(container);
+    return;
+  }
+  
+  container.innerHTML = `
+    <div class="template-cards">
+      ${filtered.map(template => `
+        <div class="template-card" data-id="${template.id}">
+          <div class="template-card-header">
+            <span class="template-card-emoji">${template.emoji}</span>
+            <span class="template-card-name">${template.name}</span>
+          </div>
+          <div class="template-card-desc">${template.description}</div>
+          <span class="template-card-tag">${template.category}</span>
+        </div>
+      `).join('')}
     </div>
-  `).join('');
+  `;
 
-  // Add click handlers
-  container.querySelectorAll('.template-item').forEach(item => {
-    item.addEventListener('click', () => useTemplate(parseInt(item.dataset.id)));
+  container.querySelectorAll('.template-card').forEach(item => {
+    item.addEventListener('click', () => showTemplateWizard(parseInt(item.dataset.id)));
   });
 }
 
-// Use template
-async function useTemplate(templateId) {
+// Show template wizard
+function showTemplateWizard(templateId) {
   const template = TEMPLATES.find(t => t.id === templateId);
   if (!template) return;
+  
+  selectedTemplate = template;
+  const container = document.getElementById('templatesGrid');
+  renderTemplateWizard(container);
+}
 
-  // Send template to content script
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.tabs.sendMessage(tabs[0].id, {
-      action: 'insertTemplate',
-      template: template.prompt
-    });
+// Render template wizard
+function renderTemplateWizard(container) {
+  const template = selectedTemplate;
+  
+  container.innerHTML = `
+    <div class="template-wizard">
+      <div class="wizard-header">
+        <button class="wizard-back" id="wizardBack">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </button>
+        <div class="wizard-title-group">
+          <div class="wizard-emoji">${template.emoji}</div>
+          <div class="wizard-title">${template.name}</div>
+          <div class="wizard-subtitle">${template.description}</div>
+        </div>
+      </div>
+      
+      <div class="wizard-fields">
+        ${template.fields.map(field => `
+          <div class="wizard-field">
+            <label for="field-${field.id}">
+              ${field.label}
+              ${field.required ? '<span class="required">*</span>' : ''}
+            </label>
+            ${field.type === 'textarea' 
+              ? `<textarea id="field-${field.id}" placeholder="${field.placeholder}" ${field.required ? 'required' : ''}></textarea>`
+              : `<input type="text" id="field-${field.id}" placeholder="${field.placeholder}" ${field.required ? 'required' : ''}/>`
+            }
+          </div>
+        `).join('')}
+      </div>
+      
+      <div class="wizard-actions">
+        <button class="btn btn-secondary" id="wizardCancel">Cancel</button>
+        <button class="btn btn-primary" id="wizardCreate">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          Create Prompt
+        </button>
+      </div>
+    </div>
+  `;
+  
+  // Event listeners
+  container.querySelector('#wizardBack').addEventListener('click', () => {
+    selectedTemplate = null;
+    renderFullTemplates('all');
   });
+  
+  container.querySelector('#wizardCancel').addEventListener('click', () => {
+    selectedTemplate = null;
+    showScreen('main');
+  });
+  
+  container.querySelector('#wizardCreate').addEventListener('click', () => {
+    createPromptFromWizard(template);
+  });
+}
 
-  window.close();
+// Create prompt from wizard
+function createPromptFromWizard(template) {
+  const values = {};
+  let isValid = true;
+  
+  template.fields.forEach(field => {
+    const input = document.getElementById(`field-${field.id}`);
+    values[field.id] = input.value.trim();
+    
+    if (field.required && !values[field.id]) {
+      input.style.borderColor = '#EF4444';
+      isValid = false;
+    } else {
+      input.style.borderColor = '';
+    }
+  });
+  
+  if (!isValid) return;
+  
+  const prompt = template.buildPrompt(values);
+  showPromptResult(prompt, template);
+}
+
+// Show prompt result
+function showPromptResult(prompt, template) {
+  const container = document.getElementById('templatesGrid');
+  
+  container.innerHTML = `
+    <div class="result-simple">
+      <div class="result-header">
+        <div class="result-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div>
+          <div class="result-title">Prompt Ready! ✨</div>
+          <div class="result-subtitle">Your ${template.name} prompt is ready to use</div>
+        </div>
+      </div>
+      
+      <div class="result-improvements">
+        <span class="result-tag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Clear structure
+        </span>
+        <span class="result-tag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Specific request
+        </span>
+        <span class="result-tag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Output format
+        </span>
+      </div>
+      
+      <div class="result-prompt">
+        <div class="result-prompt-text">${escapeHtml(prompt)}</div>
+      </div>
+      
+      <div class="result-actions">
+        <button class="btn btn-secondary" id="resultBack">Back</button>
+        <button class="btn btn-secondary btn-copy" id="resultCopy">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          Copy
+        </button>
+        <button class="btn btn-primary" id="resultUse">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+          Use Prompt
+        </button>
+      </div>
+    </div>
+  `;
+  
+  container.querySelector('#resultBack').addEventListener('click', () => {
+    showTemplateWizard(template.id);
+  });
+  
+  container.querySelector('#resultCopy').addEventListener('click', (e) => {
+    navigator.clipboard.writeText(prompt);
+    const btn = e.currentTarget;
+    btn.classList.add('copied');
+    btn.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+      Copied!
+    `;
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        Copy
+      `;
+    }, 2000);
+  });
+  
+  container.querySelector('#resultUse').addEventListener('click', () => {
+    // Send to active tab
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: 'insertTemplate',
+        template: prompt
+      });
+    });
+    window.close();
+  });
 }
 
 // Trigger prompt enhancement
@@ -998,7 +827,7 @@ async function saveSettings() {
   state.settings.showWidget = document.getElementById('showWidget').checked;
   await saveState();
   
-  // Notify content scripts of settings change
+  // Notify content scripts
   chrome.tabs.query({}, (tabs) => {
     tabs.forEach(tab => {
       chrome.tabs.sendMessage(tab.id, {
@@ -1037,7 +866,6 @@ function renderHistory() {
     </div>
   `).join('');
 
-  // Add click handlers to reuse prompts
   container.querySelectorAll('.history-item').forEach(item => {
     item.addEventListener('click', () => {
       const prompt = decodeURIComponent(item.dataset.prompt);
@@ -1062,4 +890,11 @@ function formatDate(dateString) {
   if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
   if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
   return date.toLocaleDateString();
+}
+
+// Escape HTML
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML.replace(/\n/g, '<br>');
 }
