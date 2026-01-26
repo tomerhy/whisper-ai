@@ -21,6 +21,7 @@
     createFloatingButton();
     observeTextarea();
     listenForMessages();
+    setupPositionUpdates();
   }
 
   // Load settings from storage
@@ -126,11 +127,30 @@
         } else {
           hideQuickEnhanceButton();
         }
-      }, 500);
+      }, 300);
     };
 
+    // Listen for various events that might change content
     textarea.addEventListener('input', handleInput);
     textarea.addEventListener('keyup', handleInput);
+    textarea.addEventListener('focus', handleInput);
+    textarea.addEventListener('blur', () => {
+      // Delay hiding to allow click on the button
+      setTimeout(() => {
+        const text = getTextareaContent(textarea);
+        if (text.length <= 20) {
+          hideQuickEnhanceButton();
+        }
+      }, 200);
+    });
+    
+    // Also observe for content changes via mutation
+    const observer = new MutationObserver(handleInput);
+    observer.observe(textarea, { 
+      childList: true, 
+      subtree: true, 
+      characterData: true 
+    });
   }
 
   // Show quick enhance button near textarea
@@ -147,7 +167,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
         </svg>
-        Enhance with Whisper
+        Enhance
       `;
       btn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -157,12 +177,34 @@
       document.body.appendChild(btn);
     }
 
-    // Position button above the textarea
+    // Position button inside the textarea area (top-right corner)
     const rect = textarea.getBoundingClientRect();
     btn.style.position = 'fixed';
-    btn.style.bottom = `${window.innerHeight - rect.top + 8}px`;
+    btn.style.top = `${rect.top + 8}px`;
     btn.style.right = `${window.innerWidth - rect.right + 8}px`;
+    btn.style.bottom = 'auto';
+    btn.style.left = 'auto';
     btn.classList.add('visible');
+  }
+
+  // Update button position on scroll/resize
+  function setupPositionUpdates() {
+    let repositionTimer;
+    const reposition = () => {
+      clearTimeout(repositionTimer);
+      repositionTimer = setTimeout(() => {
+        const textarea = getTextarea();
+        const text = getTextareaContent(textarea);
+        if (textarea && text.length > 20 && settings.autoEnhance && !isEnhancing) {
+          showQuickEnhanceButton(textarea);
+        } else {
+          hideQuickEnhanceButton();
+        }
+      }, 100);
+    };
+    
+    window.addEventListener('scroll', reposition, true);
+    window.addEventListener('resize', reposition);
   }
 
   // Hide quick enhance button
