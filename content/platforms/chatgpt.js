@@ -25,12 +25,22 @@
 
   // Load settings from storage
   function loadSettings() {
-    chrome.storage.local.get(['whisperState'], (result) => {
-      if (result.whisperState) {
-        settings = result.whisperState.settings || settings;
-        userProfile = result.whisperState.userProfile || userProfile;
-      }
-    });
+    if (!isExtensionContextValid()) return;
+    
+    try {
+      chrome.storage.local.get(['whisperState'], (result) => {
+        if (chrome.runtime.lastError) {
+          console.log('Could not load settings:', chrome.runtime.lastError);
+          return;
+        }
+        if (result.whisperState) {
+          settings = result.whisperState.settings || settings;
+          userProfile = result.whisperState.userProfile || userProfile;
+        }
+      });
+    } catch (e) {
+      console.log('Could not load settings - extension may have been reloaded');
+    }
   }
 
   // Create floating trigger button
@@ -369,43 +379,53 @@
     widget.querySelector('#whisper-apply')?.addEventListener('click', applyEnhancedPrompt);
   }
 
+  // Check if extension context is still valid
+  function isExtensionContextValid() {
+    try {
+      return chrome.runtime && chrome.runtime.id;
+    } catch (e) {
+      return false;
+    }
+  }
+
   // Start enhancement process
   async function startEnhancement() {
     showWidget('loading');
     isEnhancing = true;
     
     try {
-      // Get the enhancement meta-prompt from background
-      const response = await chrome.runtime.sendMessage({
-        action: 'getEnhancementPrompt',
-        originalPrompt: currentPrompt,
-        userProfile: userProfile
-      });
-      
-      const metaPrompt = response.prompt;
-      
-      // Method: Copy enhanced prompt approach
-      // We'll show the user what to do manually for now
-      // In a full implementation, you could automate this
-      
+      // Enhance locally (no need for background script communication)
       enhancedPrompt = await simulateEnhancement(currentPrompt, userProfile);
       
       showWidget('result');
       
-      // Save to history
-      chrome.runtime.sendMessage({
-        action: 'saveHistory',
-        data: {
-          original: currentPrompt,
-          enhanced: enhancedPrompt,
-          platform: PLATFORM,
-          date: new Date().toISOString()
+      // Try to save to history if extension context is still valid
+      if (isExtensionContextValid()) {
+        try {
+          chrome.runtime.sendMessage({
+            action: 'saveHistory',
+            data: {
+              original: currentPrompt,
+              enhanced: enhancedPrompt,
+              platform: PLATFORM,
+              date: new Date().toISOString()
+            }
+          });
+        } catch (e) {
+          // Extension was reloaded, ignore
+          console.log('Could not save to history - extension may have been reloaded');
         }
-      });
+      }
       
     } catch (error) {
       console.error('Enhancement error:', error);
-      showToast('Enhancement failed. Please try again.', 'error');
+      
+      // Check if it's an extension context error
+      if (error.message && error.message.includes('Extension context invalidated')) {
+        showToast('Extension was updated. Please refresh the page.', 'error');
+      } else {
+        showToast('Enhancement failed. Please try again.', 'error');
+      }
       hideWidget();
     }
     
@@ -535,27 +555,37 @@
 
   // Listen for messages from popup
   function listenForMessages() {
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      if (request.action === 'insertTemplate') {
-        insertTemplate(request.template);
-        sendResponse({ success: true });
-      }
-      
-      if (request.action === 'enhancePrompt') {
-        if (request.userProfile) {
-          userProfile = request.userProfile;
+    if (!isExtensionContextValid()) return;
+    
+    try {
+      chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        try {
+          if (request.action === 'insertTemplate') {
+            insertTemplate(request.template);
+            sendResponse({ success: true });
+          }
+          
+          if (request.action === 'enhancePrompt') {
+            if (request.userProfile) {
+              userProfile = request.userProfile;
+            }
+            enhanceCurrentPrompt();
+            sendResponse({ success: true });
+          }
+          
+          if (request.action === 'settingsUpdated') {
+            settings = request.settings;
+            sendResponse({ success: true });
+          }
+        } catch (e) {
+          console.log('Message handler error:', e);
         }
-        enhanceCurrentPrompt();
-        sendResponse({ success: true });
-      }
-      
-      if (request.action === 'settingsUpdated') {
-        settings = request.settings;
-        sendResponse({ success: true });
-      }
-      
-      return true;
-    });
+        
+        return true;
+      });
+    } catch (e) {
+      console.log('Could not setup message listener - extension may have been reloaded');
+    }
   }
 
   // Insert template into textarea
