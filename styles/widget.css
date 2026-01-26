@@ -510,3 +510,71 @@
 .whisper-widget ::-webkit-scrollbar-thumb:hover {
   background: var(--whisper-text-tertiary);
 }
+
+/* ===== AIM Framework Display ===== */
+.whisper-aim {
+  background: var(--whisper-bg-secondary);
+  border: 1px solid var(--whisper-border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.whisper-aim-title {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--whisper-text-tertiary);
+  margin-bottom: 12px;
+}
+
+.whisper-aim-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.whisper-aim-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.whisper-aim-label {
+  font-size: 11px;
+  color: var(--whisper-text-tertiary);
+  min-width: 70px;
+}
+
+.whisper-aim-value {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--whisper-text);
+  flex: 1;
+}
+
+/* ===== Added Guidance Display ===== */
+.whisper-added {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  border-radius: 8px;
+  margin-top: 12px;
+}
+
+.whisper-added-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--whisper-success);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.whisper-added-text {
+  font-size: 11px;
+  color: var(--whisper-text-secondary);
+  line-height: 1.4;
+}

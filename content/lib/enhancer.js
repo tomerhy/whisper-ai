@@ -1,183 +1,234 @@
-// ===== Whisper AI - Smart Auto-Enhancement Engine =====
-// Automatically improves any prompt with zero user input
+// ===== Whisper AI - AIM Framework Engine =====
+// Actor (who AI should be) + Input (what you're giving) + Mission (what you want)
+// Vague prompts → vague results. Structured prompts → quality results.
 
 const WhisperEnhancer = {
+
+  // ========== AIM DETECTION ==========
   
-  // Detect what the user is trying to do
-  detectIntent(prompt) {
+  // Detect the MISSION (what does the user want?)
+  detectMission(prompt) {
     const lower = prompt.toLowerCase();
     
-    if (/\b(code|function|debug|error|bug|programming|api|script|implement|fix|refactor|write.*code)\b/i.test(lower)) {
-      return 'code';
-    }
-    if (/\b(analyze|analysis|evaluate|compare|assess|review|data|metrics|report)\b/i.test(lower)) {
-      return 'analysis';
-    }
-    if (/\b(write|draft|create|compose|article|blog|email|letter|content|post)\b/i.test(lower)) {
-      return 'writing';
-    }
-    if (/\b(explain|what is|how does|why|understand|clarify|define|teach|learn)\b/i.test(lower)) {
-      return 'explanation';
-    }
-    if (/\b(idea|brainstorm|suggest|creative|design|concept|come up with)\b/i.test(lower)) {
-      return 'creative';
-    }
-    if (/\b(summarize|summary|tldr|key points|main points)\b/i.test(lower)) {
-      return 'summary';
-    }
-    if (/\b(translate|convert|change.*to)\b/i.test(lower)) {
-      return 'transform';
+    const missions = [
+      { key: 'review', patterns: /\b(review|check|evaluate|assess|feedback|critique)\b/i, mission: 'Review and provide feedback' },
+      { key: 'fix', patterns: /\b(fix|debug|solve|error|bug|issue|problem|broken|wrong)\b/i, mission: 'Identify and fix the problem' },
+      { key: 'create', patterns: /\b(write|create|generate|make|build|draft|compose)\b/i, mission: 'Create something new' },
+      { key: 'explain', patterns: /\b(explain|what is|how does|why|help me understand|clarify|teach)\b/i, mission: 'Explain clearly' },
+      { key: 'improve', patterns: /\b(improve|enhance|better|optimize|refactor|upgrade)\b/i, mission: 'Make it better' },
+      { key: 'analyze', patterns: /\b(analyze|analysis|insight|pattern|trend|data)\b/i, mission: 'Analyze and extract insights' },
+      { key: 'summarize', patterns: /\b(summarize|summary|tldr|key points|brief|shorten)\b/i, mission: 'Summarize the key points' },
+      { key: 'compare', patterns: /\b(compare|versus|vs|difference|choose|which|better)\b/i, mission: 'Compare and recommend' },
+      { key: 'brainstorm', patterns: /\b(idea|brainstorm|suggest|options|alternatives|creative)\b/i, mission: 'Generate ideas' },
+      { key: 'convert', patterns: /\b(convert|translate|transform|change to|turn into)\b/i, mission: 'Convert/transform' }
+    ];
+
+    for (const m of missions) {
+      if (m.patterns.test(lower)) {
+        return { key: m.key, mission: m.mission };
+      }
     }
     
-    return 'general';
+    return { key: 'assist', mission: 'Help with this request' };
   },
 
-  // Check what's missing from the prompt
-  analyzeMissing(prompt) {
+  // Detect the INPUT type (what are they giving?)
+  detectInput(prompt) {
     const lower = prompt.toLowerCase();
-    return {
-      hasContext: prompt.length > 80,
-      hasFormat: /\b(list|table|steps|format|structure|bullet|numbered|json|markdown)\b/i.test(lower),
-      hasDetail: /\b(detailed|specific|comprehensive|thorough|in-depth)\b/i.test(lower),
-      hasExample: /\b(example|for instance|such as|like this|show me)\b/i.test(lower),
-      hasLength: /\b(\d+\s*words?|short|long|brief|concise)\b/i.test(lower),
-      isQuestion: prompt.includes('?'),
-      wordCount: prompt.split(/\s+/).length
-    };
+    
+    if (/```|function\s|const\s|let\s|var\s|def\s|class\s|import\s|<\w+>/.test(prompt)) {
+      return { type: 'code', label: 'Code snippet' };
+    }
+    if (/\b(error|exception|traceback|failed|cannot|undefined)\b/i.test(lower)) {
+      return { type: 'error', label: 'Error/problem' };
+    }
+    if (/\b(data|numbers?|metrics?|statistics?|results?)\b/i.test(lower) || /\d+.*\d+.*\d+/.test(prompt)) {
+      return { type: 'data', label: 'Data/numbers' };
+    }
+    if (/\b(article|post|blog|email|message|text|content|document)\b/i.test(lower)) {
+      return { type: 'content', label: 'Written content' };
+    }
+    if (/\b(product|feature|app|tool|service|website)\b/i.test(lower)) {
+      return { type: 'product', label: 'Product/feature' };
+    }
+    if (prompt.length > 200) {
+      return { type: 'long', label: 'Detailed context' };
+    }
+    
+    return { type: 'request', label: 'Request' };
   },
 
-  // Get smart additions based on intent
-  getSmartAdditions(intent, missing) {
-    const additions = {
-      code: {
-        format: 'Provide complete, working code with comments.',
-        detail: 'Include error handling and edge cases.',
-        example: 'Show example usage.'
+  // Detect best ACTOR based on context
+  detectActor(prompt, profile = {}) {
+    const lower = prompt.toLowerCase();
+    
+    // If user has a role set, use it contextually
+    if (profile.role) {
+      const roleActors = {
+        developer: 'an experienced developer',
+        marketer: 'a marketing expert',
+        product: 'a product strategist',
+        designer: 'a UX expert',
+        writer: 'a skilled writer',
+        analyst: 'a data analyst',
+        student: 'a helpful tutor',
+        business: 'a business advisor',
+        researcher: 'a research expert'
+      };
+      if (roleActors[profile.role]) {
+        return roleActors[profile.role];
+      }
+    }
+    
+    // Auto-detect from content
+    if (/\b(code|programming|function|api|bug|debug)\b/i.test(lower)) {
+      return 'an experienced developer';
+    }
+    if (/\b(marketing|brand|campaign|audience|conversion)\b/i.test(lower)) {
+      return 'a marketing expert';
+    }
+    if (/\b(data|analysis|metrics|statistics)\b/i.test(lower)) {
+      return 'a data analyst';
+    }
+    if (/\b(design|ux|ui|user experience)\b/i.test(lower)) {
+      return 'a UX expert';
+    }
+    if (/\b(write|blog|article|copy|content)\b/i.test(lower)) {
+      return 'a skilled writer';
+    }
+    if (/\b(explain|teach|learn|understand)\b/i.test(lower)) {
+      return 'a helpful teacher';
+    }
+    
+    return 'a helpful expert';
+  },
+
+  // ========== OUTPUT QUALITY ==========
+
+  // Get output guidance based on mission (what makes a GOOD response?)
+  getOutputGuidance(missionKey, inputType) {
+    const guidance = {
+      review: {
+        code: 'Point out specific issues with line references. Suggest concrete fixes.',
+        default: 'Be specific about what works and what needs improvement.'
       },
-      analysis: {
-        format: 'Structure with key findings, insights, and recommendations.',
-        detail: 'Be specific and quantify where possible.',
-        example: 'Include supporting examples.'
+      fix: {
+        code: 'Show the corrected code. Explain what was wrong and why the fix works.',
+        error: 'Identify the root cause. Provide a working solution.',
+        default: 'Explain the problem clearly and provide a solution.'
       },
-      writing: {
-        format: 'Use clear structure with introduction, main points, and conclusion.',
-        detail: 'Make it engaging and well-organized.',
-        example: 'Include specific details.'
+      create: {
+        code: 'Write clean, working code with brief comments on key parts.',
+        content: 'Write in a natural, engaging tone. Structure it clearly.',
+        default: 'Create something practical and ready to use.'
       },
-      explanation: {
-        format: 'Explain step by step in simple terms.',
-        detail: 'Use analogies and real-world examples.',
-        example: 'Show a practical example.'
+      explain: {
+        default: 'Use simple language. Give a real-world analogy. Include an example.'
       },
-      creative: {
-        format: 'Provide multiple options to choose from.',
-        detail: 'Be creative and think outside the box.',
-        example: 'Include varied approaches.'
+      improve: {
+        code: 'Show the improved version. Explain each improvement.',
+        default: 'Show before/after or list specific improvements.'
       },
-      summary: {
-        format: 'Use bullet points for key takeaways.',
-        detail: 'Capture the essential points.',
-        example: ''
+      analyze: {
+        data: 'Identify patterns. Highlight key insights. Suggest actions.',
+        default: 'Break it down systematically. Highlight what matters most.'
       },
-      transform: {
-        format: 'Maintain the original meaning and structure.',
-        detail: 'Be accurate and precise.',
-        example: ''
+      summarize: {
+        default: 'Capture the essential points. Use bullet points. Be concise.'
       },
-      general: {
-        format: 'Organize your response clearly.',
-        detail: 'Be specific and helpful.',
-        example: 'Include relevant examples.'
+      compare: {
+        default: 'List pros/cons for each. Give a clear recommendation with reasoning.'
+      },
+      brainstorm: {
+        default: 'Provide varied options from safe to bold. Brief rationale for each.'
+      },
+      convert: {
+        default: 'Maintain accuracy. Keep the same structure/meaning.'
+      },
+      assist: {
+        default: 'Be helpful, specific, and actionable.'
       }
     };
 
-    const add = additions[intent] || additions.general;
-    const parts = [];
-
-    if (!missing.hasFormat) parts.push(add.format);
-    if (!missing.hasDetail && missing.wordCount < 30) parts.push(add.detail);
-    if (!missing.hasExample && add.example) parts.push(add.example);
-
-    return parts;
+    const missionGuidance = guidance[missionKey] || guidance.assist;
+    return missionGuidance[inputType] || missionGuidance.default;
   },
 
-  // Get role prefix based on user profile
-  getRolePrefix(profile, intent) {
-    if (!profile.role) return '';
-    
-    const roles = {
-      developer: 'As a developer',
-      marketer: 'From a marketing perspective',
-      product: 'As a product manager',
-      designer: 'From a design perspective',
-      writer: 'As a writer',
-      analyst: 'As an analyst',
-      student: 'As a learner',
-      business: 'From a business standpoint',
-      researcher: 'As a researcher'
-    };
+  // ========== MAIN ENHANCE FUNCTION ==========
 
-    return roles[profile.role] || '';
-  },
-
-  // MAIN: Auto-enhance any prompt with one click
   enhance(prompt, profile = {}) {
-    if (!prompt || prompt.trim().length < 5) {
+    if (!prompt || prompt.trim().length < 3) {
       return prompt;
     }
 
     const trimmed = prompt.trim();
-    const intent = this.detectIntent(trimmed);
-    const missing = this.analyzeMissing(trimmed);
-    const additions = this.getSmartAdditions(intent, missing);
     
-    // Build enhanced prompt naturally
-    let enhanced = trimmed;
-
-    // Add role context if available and prompt is short
-    const rolePrefix = this.getRolePrefix(profile, intent);
-    if (rolePrefix && missing.wordCount < 20 && !trimmed.toLowerCase().startsWith('as ')) {
-      enhanced = `${rolePrefix}, ${trimmed.charAt(0).toLowerCase()}${trimmed.slice(1)}`;
+    // Detect AIM components
+    const mission = this.detectMission(trimmed);
+    const input = this.detectInput(trimmed);
+    const actor = this.detectActor(trimmed, profile);
+    
+    // Get output guidance
+    const guidance = this.getOutputGuidance(mission.key, input.type);
+    
+    // Build enhanced prompt using AIM
+    // Keep it natural - not robotic, not overly formatted
+    let enhanced = '';
+    
+    // Only add actor context for short/vague prompts
+    if (trimmed.split(/\s+/).length < 15 && !trimmed.toLowerCase().includes('you are')) {
+      enhanced = `You are ${actor}.\n\n`;
     }
-
-    // Add smart improvements
-    if (additions.length > 0) {
-      enhanced += '\n\n' + additions.join(' ');
+    
+    // Add the original prompt (the INPUT + implicit MISSION)
+    enhanced += trimmed;
+    
+    // Add output guidance to sharpen the mission
+    if (guidance && !this.hasOutputInstructions(trimmed)) {
+      enhanced += `\n\n${guidance}`;
     }
-
-    // Keep it reasonable - don't over-enhance
-    if (enhanced.length > trimmed.length * 3) {
-      enhanced = trimmed + '\n\nPlease be specific, well-organized, and include examples.';
-    }
-
+    
     return enhanced;
   },
 
-  // Get user-friendly improvement labels
+  // Check if user already specified output format
+  hasOutputInstructions(prompt) {
+    return /\b(please|make sure|format|structure|include|provide|give me|I want|I need|should be)\b/i.test(prompt) &&
+           prompt.split(/\s+/).length > 20;
+  },
+
+  // ========== ANALYSIS FOR UI ==========
+
+  // Get AIM breakdown for display
+  getAIMBreakdown(prompt, profile = {}) {
+    const trimmed = prompt.trim();
+    const mission = this.detectMission(trimmed);
+    const input = this.detectInput(trimmed);
+    const actor = this.detectActor(trimmed, profile);
+    
+    return {
+      actor: actor,
+      input: input.label,
+      mission: mission.mission,
+      guidance: this.getOutputGuidance(mission.key, input.type)
+    };
+  },
+
+  // Get improvement labels for UI
   getImprovements(original, enhanced) {
     const improvements = [];
-    const enhancedLower = enhanced.toLowerCase();
     
-    if (enhanced.length > original.length * 1.1) {
-      if (enhancedLower.includes('as a') || enhancedLower.includes('perspective')) {
-        improvements.push('Added context');
-      }
-      if (enhancedLower.includes('structure') || enhancedLower.includes('organize') || enhancedLower.includes('step')) {
-        improvements.push('Better structure');
-      }
-      if (enhancedLower.includes('specific') || enhancedLower.includes('example')) {
-        improvements.push('More specific');
-      }
-      if (enhancedLower.includes('complete') || enhancedLower.includes('comprehensive')) {
-        improvements.push('More complete');
-      }
+    if (enhanced.includes('You are')) {
+      improvements.push('Added expert context');
+    }
+    if (enhanced.length > original.length + 20) {
+      improvements.push('Clearer direction');
+    }
+    if (/specific|example|explain|show/.test(enhanced.toLowerCase())) {
+      improvements.push('More specific ask');
     }
     
-    if (improvements.length === 0) {
-      improvements.push('Improved');
-    }
-    
-    return improvements.slice(0, 3);
+    return improvements.length ? improvements : ['Sharpened prompt'];
   }
 };
 

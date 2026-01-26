@@ -1,5 +1,5 @@
 // ===== Whisper AI - Grok Content Script =====
-// Uses the user's Grok/X session - no API key required!
+// AIM Framework: Actor + Input + Mission = Better Results
 
 (function() {
   'use strict';
@@ -8,11 +8,11 @@
   let widgetVisible = false;
   let currentPrompt = '';
   let enhancedPrompt = '';
+  let aimBreakdown = null;
   let settings = { autoEnhance: true, showWidget: true };
   let userProfile = { role: '', industry: '' };
   let isEnhancing = false;
 
-  // Initialize
   init();
 
   function init() {
@@ -24,54 +24,30 @@
     setupPositionUpdates();
   }
 
-  // Check if extension context is still valid
-  function isExtensionContextValid() {
-    try {
-      return chrome.runtime && chrome.runtime.id;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  // Load settings from storage
   function loadSettings() {
     if (!isExtensionContextValid()) return;
-    
     try {
       chrome.storage.local.get(['whisperState'], (result) => {
-        if (chrome.runtime.lastError) {
-          console.log('Could not load settings:', chrome.runtime.lastError);
-          return;
-        }
+        if (chrome.runtime.lastError) return;
         if (result.whisperState) {
           settings = result.whisperState.settings || settings;
           userProfile = result.whisperState.userProfile || userProfile;
         }
       });
-    } catch (e) {
-      console.log('Could not load settings - extension may have been reloaded');
-    }
+    } catch (e) {}
   }
 
-  // Create floating trigger button
   function createFloatingButton() {
     if (document.getElementById('whisper-trigger')) return;
-
     const button = document.createElement('button');
     button.id = 'whisper-trigger';
     button.className = 'whisper-trigger';
-    button.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-      </svg>
-    `;
-    button.title = 'Whisper AI - Enhance your prompt';
+    button.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
+    button.title = 'Whisper AI - Sharpen your prompt';
     button.addEventListener('click', toggleWidget);
-    
     document.body.appendChild(button);
   }
 
-  // Observe textarea for input
   function observeTextarea() {
     const observer = new MutationObserver(() => {
       const textarea = getTextarea();
@@ -80,552 +56,195 @@
         setupTextareaListeners(textarea);
       }
     });
-
     observer.observe(document.body, { childList: true, subtree: true });
   }
 
-  // Get Grok textarea/contenteditable
   function getTextarea() {
-    // Grok on X.com and grok.com
     return document.querySelector('textarea[placeholder*="Ask"]') ||
            document.querySelector('textarea[data-testid="grok-composer"]') ||
            document.querySelector('div[contenteditable="true"][role="textbox"]') ||
-           document.querySelector('textarea[aria-label*="message"]') ||
-           document.querySelector('.grok-input textarea') ||
-           document.querySelector('div[contenteditable="true"][data-placeholder]');
+           document.querySelector('textarea[aria-label*="message"]');
   }
 
-  // Get the text content from textarea
   function getTextareaContent(textarea) {
     if (!textarea) return '';
-    if (textarea.tagName === 'TEXTAREA') {
-      return textarea.value;
-    }
-    return textarea.innerText || textarea.textContent || '';
+    return textarea.tagName === 'TEXTAREA' ? textarea.value : (textarea.innerText || '');
   }
 
-  // Set the text content in textarea
   function setTextareaContent(textarea, text) {
     if (!textarea) return;
-    
     if (textarea.tagName === 'TEXTAREA') {
       textarea.value = text;
       textarea.dispatchEvent(new Event('input', { bubbles: true }));
-      
-      // For React-based inputs
-      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set;
-      if (nativeInputValueSetter) {
-        nativeInputValueSetter.call(textarea, text);
-        textarea.dispatchEvent(new Event('input', { bubbles: true }));
-      }
     } else {
       textarea.innerHTML = `<p>${escapeHtml(text)}</p>`;
       textarea.dispatchEvent(new InputEvent('input', { bubbles: true }));
     }
-    
     textarea.focus();
   }
 
-  // Setup textarea listeners
   function setupTextareaListeners(textarea) {
     let debounceTimer;
-
     const handleInput = () => {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
         const text = getTextareaContent(textarea);
-        if (text.length > 20 && settings.autoEnhance && !isEnhancing) {
+        if (text.length > 10 && settings.autoEnhance && !isEnhancing) {
           showQuickEnhanceButton(textarea);
         } else {
           hideQuickEnhanceButton();
         }
       }, 300);
     };
-
     textarea.addEventListener('input', handleInput);
-    textarea.addEventListener('keyup', handleInput);
     textarea.addEventListener('focus', handleInput);
-    textarea.addEventListener('blur', () => {
-      setTimeout(() => {
-        const text = getTextareaContent(textarea);
-        if (text.length <= 20) {
-          hideQuickEnhanceButton();
-        }
-      }, 200);
-    });
-    
     const observer = new MutationObserver(handleInput);
-    observer.observe(textarea, { 
-      childList: true, 
-      subtree: true, 
-      characterData: true 
-    });
+    observer.observe(textarea, { childList: true, subtree: true, characterData: true });
   }
 
-  // Show quick enhance button near textarea
   function showQuickEnhanceButton(textarea) {
     if (!settings.showWidget) return;
-    
     let btn = document.getElementById('whisper-quick-enhance');
-    
     if (!btn) {
       btn = document.createElement('button');
       btn.id = 'whisper-quick-enhance';
       btn.className = 'whisper-quick-enhance';
-      btn.innerHTML = `
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-        </svg>
-        Enhance
-      `;
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        enhanceCurrentPrompt();
-      });
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Sharpen`;
+      btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); quickEnhance(); });
       document.body.appendChild(btn);
     }
-
     const rect = textarea.getBoundingClientRect();
-    btn.style.position = 'fixed';
-    btn.style.top = `${rect.top + 8}px`;
-    btn.style.right = `${window.innerWidth - rect.right + 8}px`;
-    btn.style.bottom = 'auto';
-    btn.style.left = 'auto';
+    btn.style.cssText = `position:fixed;top:${rect.top+8}px;right:${window.innerWidth-rect.right+8}px;`;
     btn.classList.add('visible');
   }
 
-  // Update button position on scroll/resize
   function setupPositionUpdates() {
-    let repositionTimer;
     const reposition = () => {
-      clearTimeout(repositionTimer);
-      repositionTimer = setTimeout(() => {
-        const textarea = getTextarea();
-        const text = getTextareaContent(textarea);
-        if (textarea && text.length > 20 && settings.autoEnhance && !isEnhancing) {
-          showQuickEnhanceButton(textarea);
-        } else {
-          hideQuickEnhanceButton();
-        }
-      }, 100);
+      const textarea = getTextarea();
+      const text = getTextareaContent(textarea);
+      if (textarea && text.length > 10 && settings.autoEnhance && !isEnhancing) {
+        showQuickEnhanceButton(textarea);
+      } else {
+        hideQuickEnhanceButton();
+      }
     };
-    
     window.addEventListener('scroll', reposition, true);
     window.addEventListener('resize', reposition);
   }
 
-  // Hide quick enhance button
   function hideQuickEnhanceButton() {
-    const btn = document.getElementById('whisper-quick-enhance');
-    if (btn) {
-      btn.classList.remove('visible');
-    }
+    document.getElementById('whisper-quick-enhance')?.classList.remove('visible');
   }
 
-  // Toggle widget visibility
   function toggleWidget() {
-    if (widgetVisible) {
-      hideWidget();
-    } else {
-      const textarea = getTextarea();
-      currentPrompt = getTextareaContent(textarea);
-      if (currentPrompt.trim()) {
-        showWidget('input');
-      } else {
-        showToast('Please enter a prompt first', 'error');
-      }
-    }
-  }
-
-  // Enhance current prompt
-  function enhanceCurrentPrompt() {
+    if (widgetVisible) { hideWidget(); return; }
     const textarea = getTextarea();
     currentPrompt = getTextareaContent(textarea);
-    
-    if (currentPrompt.trim()) {
-      showWidget('input');
-    }
+    if (currentPrompt.trim()) { quickEnhance(); } else { showToast('Type something first', 'error'); }
   }
 
-  // Show widget
-  function showWidget(mode = 'input') {
+  function quickEnhance() {
+    const textarea = getTextarea();
+    currentPrompt = getTextareaContent(textarea);
+    if (!currentPrompt.trim()) return;
     hideQuickEnhanceButton();
     
-    let widget = document.getElementById('whisper-widget');
+    if (typeof WhisperEnhancer !== 'undefined') {
+      aimBreakdown = WhisperEnhancer.getAIMBreakdown(currentPrompt, userProfile);
+      enhancedPrompt = WhisperEnhancer.enhance(currentPrompt, userProfile);
+    } else {
+      enhancedPrompt = currentPrompt + '\n\nPlease be specific and provide a clear, structured response.';
+      aimBreakdown = { actor: 'a helpful expert', input: 'Request', mission: 'Help with this', guidance: 'Be specific.' };
+    }
     
+    showWidget();
+    saveToHistory();
+  }
+
+  function showWidget() {
+    hideQuickEnhanceButton();
+    let widget = document.getElementById('whisper-widget');
     if (!widget) {
       widget = document.createElement('div');
       widget.id = 'whisper-widget';
       widget.className = 'whisper-widget';
       document.body.appendChild(widget);
     }
-
-    if (mode === 'input') {
-      widget.innerHTML = getInputModeHTML();
-    } else if (mode === 'loading') {
-      widget.innerHTML = getLoadingHTML();
-    } else if (mode === 'result') {
-      widget.innerHTML = getResultHTML();
-    }
-    
+    widget.innerHTML = getResultHTML();
     widget.classList.remove('hidden');
     widgetVisible = true;
-    
     setupWidgetListeners();
   }
 
-  // Get input mode HTML
-  function getInputModeHTML() {
-    return `
-      <div class="whisper-header">
-        <div class="whisper-logo">
-          <div class="whisper-logo-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-            </svg>
-          </div>
-          <span class="whisper-logo-text">Whisper AI</span>
-        </div>
-        <button class="whisper-close" id="whisper-close">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-      <div class="whisper-content">
-        <div class="whisper-section">
-          <div class="whisper-section-header">
-            <span class="whisper-section-title">Your Prompt</span>
-          </div>
-          <div class="whisper-prompt-box">${escapeHtml(currentPrompt)}</div>
-        </div>
-        
-        <div class="whisper-info-box">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="16" x2="12" y2="12"></line>
-            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-          </svg>
-          <span>Whisper will enhance your prompt using smart prompt engineering techniques.</span>
-        </div>
-        
-        <div class="whisper-actions">
-          <button class="whisper-btn whisper-btn-secondary" id="whisper-cancel">Cancel</button>
-          <button class="whisper-btn whisper-btn-primary" id="whisper-enhance">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-            </svg>
-            Enhance Prompt
-          </button>
-        </div>
-      </div>
-    `;
-  }
-
-  // Get loading HTML
-  function getLoadingHTML() {
-    return `
-      <div class="whisper-header">
-        <div class="whisper-logo">
-          <div class="whisper-logo-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-            </svg>
-          </div>
-          <span class="whisper-logo-text">Whisper AI</span>
-        </div>
-        <button class="whisper-close" id="whisper-close">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-      <div class="whisper-content">
-        <div class="whisper-loading">
-          <div class="whisper-spinner"></div>
-          <span class="whisper-loading-text">Enhancing your prompt...</span>
-        </div>
-      </div>
-    `;
-  }
-
-  // Get result HTML
   function getResultHTML() {
-    const improvements = analyzeImprovements(currentPrompt, enhancedPrompt);
-    
     return `
       <div class="whisper-header">
-        <div class="whisper-logo">
-          <div class="whisper-logo-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-            </svg>
-          </div>
-          <span class="whisper-logo-text">Whisper AI</span>
-        </div>
-        <button class="whisper-close" id="whisper-close">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
+        <div class="whisper-logo"><div class="whisper-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><span class="whisper-logo-text">Whisper AI</span></div>
+        <button class="whisper-close" id="whisper-close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div class="whisper-content">
-        <div class="whisper-section">
-          <div class="whisper-section-header">
-            <span class="whisper-section-title">Original</span>
+        <div class="whisper-aim">
+          <div class="whisper-aim-title">I understood your prompt as:</div>
+          <div class="whisper-aim-grid">
+            <div class="whisper-aim-item"><span class="whisper-aim-label">🎭 Actor</span><span class="whisper-aim-value">${aimBreakdown?.actor || 'Expert'}</span></div>
+            <div class="whisper-aim-item"><span class="whisper-aim-label">📥 Input</span><span class="whisper-aim-value">${aimBreakdown?.input || 'Request'}</span></div>
+            <div class="whisper-aim-item"><span class="whisper-aim-label">🎯 Mission</span><span class="whisper-aim-value">${aimBreakdown?.mission || 'Help'}</span></div>
           </div>
-          <div class="whisper-prompt-box whisper-prompt-small">${escapeHtml(currentPrompt)}</div>
         </div>
-        
         <div class="whisper-section">
-          <div class="whisper-section-header">
-            <span class="whisper-section-title">Enhanced</span>
-            <span class="whisper-badge improved">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              Improved
-            </span>
-          </div>
+          <div class="whisper-section-header"><span class="whisper-section-title">Sharpened Prompt</span></div>
           <div class="whisper-prompt-box enhanced">${escapeHtml(enhancedPrompt)}</div>
-          <div class="whisper-improvements">
-            ${improvements.map(imp => `
-              <span class="whisper-improvement-tag">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                ${imp}
-              </span>
-            `).join('')}
-          </div>
         </div>
-        
+        <div class="whisper-added"><span class="whisper-added-label">Added:</span><span class="whisper-added-text">${aimBreakdown?.guidance || 'Clearer direction'}</span></div>
         <div class="whisper-actions">
           <button class="whisper-btn whisper-btn-secondary" id="whisper-cancel">Keep Original</button>
-          <button class="whisper-btn whisper-btn-primary" id="whisper-apply">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            Use Enhanced
-          </button>
+          <button class="whisper-btn whisper-btn-primary" id="whisper-apply"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>Use This</button>
         </div>
-      </div>
-    `;
+      </div>`;
   }
 
-  // Setup widget event listeners
   function setupWidgetListeners() {
     const widget = document.getElementById('whisper-widget');
     if (!widget) return;
-    
     widget.querySelector('#whisper-close')?.addEventListener('click', hideWidget);
     widget.querySelector('#whisper-cancel')?.addEventListener('click', hideWidget);
-    widget.querySelector('#whisper-enhance')?.addEventListener('click', startEnhancement);
     widget.querySelector('#whisper-apply')?.addEventListener('click', applyEnhancedPrompt);
   }
 
-  // Start enhancement process
-  async function startEnhancement() {
-    showWidget('loading');
-    isEnhancing = true;
-    
-    try {
-      enhancedPrompt = await simulateEnhancement(currentPrompt, userProfile);
-      showWidget('result');
-      
-      // Try to save to history if extension context is still valid
-      if (isExtensionContextValid()) {
-        try {
-          chrome.runtime.sendMessage({
-            action: 'saveHistory',
-            data: {
-              original: currentPrompt,
-              enhanced: enhancedPrompt,
-              platform: PLATFORM,
-              date: new Date().toISOString()
-            }
-          });
-        } catch (e) {
-          console.log('Could not save to history - extension may have been reloaded');
-        }
-      }
-      
-    } catch (error) {
-      console.error('Enhancement error:', error);
-      
-      if (error.message && error.message.includes('Extension context invalidated')) {
-        showToast('Extension was updated. Please refresh the page.', 'error');
-      } else {
-        showToast('Enhancement failed. Please try again.', 'error');
-      }
-      hideWidget();
-    }
-    
-    isEnhancing = false;
+  function isExtensionContextValid() { try { return chrome.runtime && chrome.runtime.id; } catch (e) { return false; } }
+
+  function saveToHistory() {
+    if (!isExtensionContextValid()) return;
+    try { chrome.runtime.sendMessage({ action: 'saveHistory', data: { original: currentPrompt, enhanced: enhancedPrompt, platform: PLATFORM, date: new Date().toISOString() } }); } catch (e) {}
   }
 
-  // Use the advanced WhisperEnhancer for prompt enhancement
-  async function simulateEnhancement(prompt, profile) {
-    // Use the advanced enhancer if available
-    if (typeof WhisperEnhancer !== 'undefined') {
-      return WhisperEnhancer.enhance(prompt, profile);
-    }
-    
-    // Fallback to basic enhancement
-    let enhanced = prompt.trim();
-    
-    if (profile.role && !enhanced.toLowerCase().includes('as a')) {
-      const rolePrefix = {
-        developer: 'As a software developer',
-        marketer: 'From a marketing perspective',
-        product: 'As a product manager',
-        designer: 'From a design standpoint',
-        writer: 'As a content creator',
-        analyst: 'From an analytical perspective',
-        student: 'As a student learning this topic',
-        business: 'From a business perspective'
-      };
-      if (rolePrefix[profile.role]) {
-        enhanced = `${rolePrefix[profile.role]}, ${enhanced.charAt(0).toLowerCase() + enhanced.slice(1)}`;
-      }
-    }
-    
-    enhanced += '\n\nPlease structure your response clearly with sections and examples. Be specific and actionable.';
-    
-    return enhanced;
-  }
+  function hideWidget() { document.getElementById('whisper-widget')?.classList.add('hidden'); widgetVisible = false; isEnhancing = false; }
 
-  // Hide widget
-  function hideWidget() {
-    const widget = document.getElementById('whisper-widget');
-    if (widget) {
-      widget.classList.add('hidden');
-    }
-    widgetVisible = false;
-    isEnhancing = false;
-  }
-
-  // Analyze improvements made
-  function analyzeImprovements(original, enhanced) {
-    // Use the advanced enhancer if available
-    if (typeof WhisperEnhancer !== 'undefined') {
-      return WhisperEnhancer.getImprovements(original, enhanced);
-    }
-    
-    // Fallback analysis
-    const improvements = [];
-    
-    if (enhanced.length > original.length * 1.2) {
-      improvements.push('Added context');
-    }
-    if (enhanced.includes('[FORMAT]') || enhanced.includes('structure')) {
-      improvements.push('Output format');
-    }
-    if (enhanced.includes('[QUALITY]') || enhanced.includes('specific')) {
-      improvements.push('Quality criteria');
-    }
-    if (enhanced.includes('[ROLE]') || enhanced.includes('As a')) {
-      improvements.push('Role context');
-    }
-    
-    if (improvements.length === 0) {
-      improvements.push('Optimized structure');
-    }
-    
-    return improvements.slice(0, 4);
-  }
-
-  // Apply enhanced prompt to textarea
   function applyEnhancedPrompt() {
     const textarea = getTextarea();
-    if (!textarea || !enhancedPrompt) return;
-
-    setTextareaContent(textarea, enhancedPrompt);
-    textarea.focus();
-    
-    hideWidget();
-    showToast('Enhanced prompt applied!', 'success');
+    if (textarea && enhancedPrompt) { setTextareaContent(textarea, enhancedPrompt); textarea.focus(); hideWidget(); showToast('Prompt sharpened!', 'success'); }
   }
 
-  // Show toast notification
   function showToast(message, type = 'success') {
-    const existingToast = document.querySelector('.whisper-toast');
-    if (existingToast) existingToast.remove();
-
+    document.querySelector('.whisper-toast')?.remove();
     const toast = document.createElement('div');
     toast.className = `whisper-toast ${type}`;
-    toast.innerHTML = `
-      <svg class="whisper-toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        ${type === 'success' 
-          ? '<polyline points="20 6 9 17 4 12"></polyline>'
-          : '<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>'
-        }
-      </svg>
-      <span class="whisper-toast-message">${message}</span>
-    `;
-
+    toast.innerHTML = `<svg class="whisper-toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${type === 'success' ? '<polyline points="20 6 9 17 4 12"></polyline>' : '<circle cx="12" cy="12" r="10"></circle>'}</svg><span class="whisper-toast-message">${message}</span>`;
     document.body.appendChild(toast);
-    
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateX(20px)';
-      setTimeout(() => toast.remove(), 300);
-    }, 3000);
+    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 2500);
   }
 
-  // Listen for messages from popup
   function listenForMessages() {
     if (!isExtensionContextValid()) return;
-    
     try {
       chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        try {
-          if (request.action === 'insertTemplate') {
-            insertTemplate(request.template);
-            sendResponse({ success: true });
-          }
-          
-          if (request.action === 'enhancePrompt') {
-            if (request.userProfile) {
-              userProfile = request.userProfile;
-            }
-            enhanceCurrentPrompt();
-            sendResponse({ success: true });
-          }
-          
-          if (request.action === 'settingsUpdated') {
-            settings = request.settings;
-            sendResponse({ success: true });
-          }
-        } catch (e) {
-          console.log('Message handler error:', e);
-        }
-        
+        if (request.action === 'insertTemplate') { const textarea = getTextarea(); if (textarea) { setTextareaContent(textarea, request.template); showToast('Inserted!', 'success'); } sendResponse({ success: true }); }
+        if (request.action === 'enhancePrompt') { if (request.userProfile) userProfile = request.userProfile; quickEnhance(); sendResponse({ success: true }); }
+        if (request.action === 'settingsUpdated') { settings = request.settings; sendResponse({ success: true }); }
         return true;
       });
-    } catch (e) {
-      console.log('Could not setup message listener - extension may have been reloaded');
-    }
+    } catch (e) {}
   }
 
-  // Insert template into textarea
-  function insertTemplate(template) {
-    const textarea = getTextarea();
-    if (!textarea) return;
-
-    setTextareaContent(textarea, template);
-    textarea.focus();
-    showToast('Template inserted!', 'success');
-  }
-
-  // Escape HTML
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
+  function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 })();
