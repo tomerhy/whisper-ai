@@ -42,8 +42,299 @@
       </button>
     </header>
 
-    <!-- Onboarding Screen -->
-    <div class="screen" id="onboardingScreen">
+    <!-- Walkthrough Screen -->
+    <div class="screen hidden" id="walkthroughScreen">
+      <div class="walkthrough">
+        <!-- Step 1: Welcome -->
+        <div class="walkthrough-step active" data-step="1">
+          <div class="walkthrough-progress">
+            <div class="progress-bar" style="width: 16.6%"></div>
+          </div>
+          <div class="walkthrough-content">
+            <div class="walkthrough-illustration">
+              <div class="illustration-circle">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+              </div>
+            </div>
+            <h2>Welcome to Whisper AI!</h2>
+            <p>Transform your basic prompts into powerful, detailed queries that get better results from AI.</p>
+            <div class="walkthrough-features">
+              <div class="feature-item">
+                <span class="feature-icon">🎯</span>
+                <span>Smart Enhancement</span>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">📚</span>
+                <span>12+ Templates</span>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">🔒</span>
+                <span>No API Key Needed</span>
+              </div>
+            </div>
+          </div>
+          <div class="walkthrough-nav">
+            <button class="btn btn-secondary" id="skipWalkthrough">Skip</button>
+            <button class="btn btn-primary" id="nextStep1">
+              Get Started
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: How Enhancement Works -->
+        <div class="walkthrough-step" data-step="2">
+          <div class="walkthrough-progress">
+            <div class="progress-bar" style="width: 33.2%"></div>
+          </div>
+          <div class="walkthrough-content">
+            <div class="walkthrough-illustration">
+              <div class="illustration-demo">
+                <div class="demo-before">
+                  <span class="demo-label">Before</span>
+                  <p>"explain kubernetes"</p>
+                </div>
+                <div class="demo-arrow">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </div>
+                <div class="demo-after">
+                  <span class="demo-label">After</span>
+                  <p>"As a developer, explain kubernetes with examples..."</p>
+                </div>
+              </div>
+            </div>
+            <h2>Smart Enhancement</h2>
+            <p>Whisper AI automatically adds context, structure, and specificity to your prompts based on your profile.</p>
+            <div class="enhancement-tags">
+              <span class="tag">+ Role Context</span>
+              <span class="tag">+ Output Format</span>
+              <span class="tag">+ Specificity</span>
+              <span class="tag">+ Actionable</span>
+            </div>
+          </div>
+          <div class="walkthrough-nav">
+            <button class="btn btn-secondary" id="prevStep2">Back</button>
+            <button class="btn btn-primary" id="nextStep2">
+              Next
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Using the Widget -->
+        <div class="walkthrough-step" data-step="3">
+          <div class="walkthrough-progress">
+            <div class="progress-bar" style="width: 49.8%"></div>
+          </div>
+          <div class="walkthrough-content">
+            <div class="walkthrough-illustration">
+              <div class="illustration-widget">
+                <div class="fake-textarea">
+                  <span>Type your prompt here...</span>
+                </div>
+                <div class="fake-enhance-btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                  </svg>
+                  Enhance with Whisper
+                </div>
+                <div class="fake-float-btn">⚡</div>
+              </div>
+            </div>
+            <h2>Two Ways to Enhance</h2>
+            <p>On any supported AI platform, you'll see:</p>
+            <div class="method-list">
+              <div class="method-item">
+                <div class="method-icon enhance-btn-icon">⚡ Enhance</div>
+                <span>Button appears when you type 20+ characters</span>
+              </div>
+              <div class="method-item">
+                <div class="method-icon float-btn-icon">⚡</div>
+                <span>Floating button in the corner (always visible)</span>
+              </div>
+            </div>
+          </div>
+          <div class="walkthrough-nav">
+            <button class="btn btn-secondary" id="prevStep3">Back</button>
+            <button class="btn btn-primary" id="nextStep3">
+              Next
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 4: Templates -->
+        <div class="walkthrough-step" data-step="4">
+          <div class="walkthrough-progress">
+            <div class="progress-bar" style="width: 66.4%"></div>
+          </div>
+          <div class="walkthrough-content">
+            <div class="walkthrough-illustration">
+              <div class="illustration-templates">
+                <div class="template-preview">
+                  <span class="template-icon">🔍</span>
+                  <span>Code Review</span>
+                </div>
+                <div class="template-preview">
+                  <span class="template-icon">📝</span>
+                  <span>Blog Post</span>
+                </div>
+                <div class="template-preview">
+                  <span class="template-icon">📊</span>
+                  <span>Data Analysis</span>
+                </div>
+                <div class="template-preview">
+                  <span class="template-icon">💡</span>
+                  <span>Brainstorm</span>
+                </div>
+              </div>
+            </div>
+            <h2>Ready-to-Use Templates</h2>
+            <p>Choose from 12+ pre-built prompt templates for common tasks:</p>
+            <div class="category-pills">
+              <span class="pill">💻 Coding</span>
+              <span class="pill">✍️ Writing</span>
+              <span class="pill">📊 Analysis</span>
+              <span class="pill">🎨 Creative</span>
+            </div>
+          </div>
+          <div class="walkthrough-nav">
+            <button class="btn btn-secondary" id="prevStep4">Back</button>
+            <button class="btn btn-primary" id="nextStep4">
+              Next
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 5: Supported Platforms -->
+        <div class="walkthrough-step" data-step="5">
+          <div class="walkthrough-progress">
+            <div class="progress-bar" style="width: 83%"></div>
+          </div>
+          <div class="walkthrough-content">
+            <div class="walkthrough-illustration">
+              <div class="illustration-platforms">
+                <div class="platform-card">
+                  <div class="platform-logo chatgpt">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M22.28 9.82a5.98 5.98 0 0 0-.52-4.91 6.05 6.05 0 0 0-6.51-2.9A6.07 6.07 0 0 0 4.98 4.18a5.98 5.98 0 0 0-4 2.9 6.05 6.05 0 0 0 .74 7.1 5.98 5.98 0 0 0 .51 4.91 6.05 6.05 0 0 0 6.51 2.9A5.98 5.98 0 0 0 13.26 24a6.06 6.06 0 0 0 5.77-4.21 5.99 5.99 0 0 0 4-2.9 6.06 6.06 0 0 0-.75-7.07z"/>
+                    </svg>
+                  </div>
+                  <span>ChatGPT</span>
+                </div>
+                <div class="platform-card">
+                  <div class="platform-logo claude">🤖</div>
+                  <span>Claude</span>
+                </div>
+                <div class="platform-card">
+                  <div class="platform-logo gemini">✨</div>
+                  <span>Gemini</span>
+                </div>
+                <div class="platform-card">
+                  <div class="platform-logo grok">𝕏</div>
+                  <span>Grok</span>
+                </div>
+              </div>
+            </div>
+            <h2>Works Everywhere</h2>
+            <p>Whisper AI works on all major AI platforms. Just make sure you're logged in!</p>
+            <div class="note-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <span>No API keys needed - uses your existing accounts</span>
+            </div>
+          </div>
+          <div class="walkthrough-nav">
+            <button class="btn btn-secondary" id="prevStep5">Back</button>
+            <button class="btn btn-primary" id="nextStep5">
+              Next
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 6: Setup Profile -->
+        <div class="walkthrough-step" data-step="6">
+          <div class="walkthrough-progress">
+            <div class="progress-bar" style="width: 100%"></div>
+          </div>
+          <div class="walkthrough-content">
+            <div class="walkthrough-illustration">
+              <div class="illustration-circle success">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+            </div>
+            <h2>You're All Set!</h2>
+            <p>Let's personalize your experience. This helps Whisper AI tailor enhancements to your needs.</p>
+            
+            <div class="form-group">
+              <label>What's your role?</label>
+              <select id="walkthroughRole">
+                <option value="">Select your role...</option>
+                <option value="developer">Developer / Engineer</option>
+                <option value="marketer">Marketer / Growth</option>
+                <option value="product">Product Manager</option>
+                <option value="designer">Designer / Creative</option>
+                <option value="writer">Writer / Content Creator</option>
+                <option value="analyst">Data Analyst / Researcher</option>
+                <option value="student">Student / Academic</option>
+                <option value="business">Business Owner</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Your industry</label>
+              <select id="walkthroughIndustry">
+                <option value="">Select industry...</option>
+                <option value="tech">Technology / Software</option>
+                <option value="finance">Finance / Banking</option>
+                <option value="healthcare">Healthcare / Medical</option>
+                <option value="education">Education</option>
+                <option value="ecommerce">E-commerce / Retail</option>
+                <option value="media">Media / Entertainment</option>
+                <option value="consulting">Consulting / Agency</option>
+                <option value="legal">Legal</option>
+                <option value="manufacturing">Manufacturing</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="walkthrough-nav">
+            <button class="btn btn-secondary" id="prevStep6">Back</button>
+            <button class="btn btn-primary" id="finishWalkthrough">
+              Start Using Whisper
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onboarding Screen (Legacy - redirects to walkthrough) -->
+    <div class="screen hidden" id="onboardingScreen">
       <div class="onboarding">
         <div class="onboarding-step" id="step1">
           <div class="step-indicator">
@@ -69,7 +360,7 @@
             </select>
           </div>
 
-          <button class="btn btn-primary" id="nextStep1">
+          <button class="btn btn-primary" id="nextStep1Legacy">
             Continue
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -111,7 +402,7 @@
           </div>
 
           <div class="btn-group">
-            <button class="btn btn-secondary" id="backStep2">Back</button>
+            <button class="btn btn-secondary" id="backStep2Legacy">Back</button>
             <button class="btn btn-primary" id="finishSetup">
               Start Using Whisper
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -338,6 +629,17 @@
               <span class="toggle-slider"></span>
             </label>
           </div>
+        </div>
+
+        <div class="settings-group">
+          <h4 class="settings-group-title">Help</h4>
+          <button class="btn btn-tutorial" id="watchTutorialBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polygon points="10 8 16 12 10 16 10 8"/>
+            </svg>
+            Watch Tutorial Again
+          </button>
         </div>
 
         <button class="btn btn-danger" id="resetBtn">Reset All Data</button>

@@ -29,6 +29,7 @@ const TIPS = [
 // State
 let state = {
   isOnboarded: false,
+  hasSeenWalkthrough: false,
   userProfile: {
     role: '',
     industry: ''
@@ -42,6 +43,7 @@ let state = {
 
 // DOM Elements
 const screens = {
+  walkthrough: document.getElementById('walkthroughScreen'),
   onboarding: document.getElementById('onboardingScreen'),
   main: document.getElementById('mainScreen'),
   templates: document.getElementById('templatesScreen'),
@@ -49,11 +51,16 @@ const screens = {
   history: document.getElementById('historyScreen')
 };
 
+// Walkthrough current step
+let currentWalkthroughStep = 1;
+const TOTAL_WALKTHROUGH_STEPS = 6;
+
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
   await loadState();
   initializeUI();
   setupEventListeners();
+  setupWalkthroughListeners();
   detectCurrentPlatform();
 });
 
@@ -78,11 +85,13 @@ async function saveState() {
 
 // Initialize UI based on state
 function initializeUI() {
-  if (state.isOnboarded) {
+  if (!state.isOnboarded || !state.hasSeenWalkthrough) {
+    // Show walkthrough for first-time users
+    showScreen('walkthrough');
+    showWalkthroughStep(1);
+  } else {
     showScreen('main');
     updateMainScreen();
-  } else {
-    showScreen('onboarding');
   }
   renderTemplates();
   updateTip();
@@ -94,10 +103,90 @@ function showScreen(screenName) {
   screens[screenName].classList.remove('hidden');
 }
 
+// Setup walkthrough event listeners
+function setupWalkthroughListeners() {
+  // Step navigation
+  document.getElementById('skipWalkthrough')?.addEventListener('click', skipWalkthrough);
+  document.getElementById('nextStep1')?.addEventListener('click', () => showWalkthroughStep(2));
+  document.getElementById('prevStep2')?.addEventListener('click', () => showWalkthroughStep(1));
+  document.getElementById('nextStep2')?.addEventListener('click', () => showWalkthroughStep(3));
+  document.getElementById('prevStep3')?.addEventListener('click', () => showWalkthroughStep(2));
+  document.getElementById('nextStep3')?.addEventListener('click', () => showWalkthroughStep(4));
+  document.getElementById('prevStep4')?.addEventListener('click', () => showWalkthroughStep(3));
+  document.getElementById('nextStep4')?.addEventListener('click', () => showWalkthroughStep(5));
+  document.getElementById('prevStep5')?.addEventListener('click', () => showWalkthroughStep(4));
+  document.getElementById('nextStep5')?.addEventListener('click', () => showWalkthroughStep(6));
+  document.getElementById('prevStep6')?.addEventListener('click', () => showWalkthroughStep(5));
+  document.getElementById('finishWalkthrough')?.addEventListener('click', finishWalkthrough);
+  
+  // Watch tutorial button in settings
+  document.getElementById('watchTutorialBtn')?.addEventListener('click', () => {
+    showScreen('walkthrough');
+    showWalkthroughStep(1);
+  });
+}
+
+// Show walkthrough step
+function showWalkthroughStep(step) {
+  currentWalkthroughStep = step;
+  
+  // Hide all steps
+  document.querySelectorAll('.walkthrough-step').forEach(s => {
+    s.classList.remove('active');
+  });
+  
+  // Show current step
+  const currentStep = document.querySelector(`.walkthrough-step[data-step="${step}"]`);
+  if (currentStep) {
+    currentStep.classList.add('active');
+  }
+  
+  // Pre-fill profile if already set
+  if (step === 6 && state.userProfile.role) {
+    document.getElementById('walkthroughRole').value = state.userProfile.role;
+    document.getElementById('walkthroughIndustry').value = state.userProfile.industry;
+  }
+}
+
+// Skip walkthrough
+async function skipWalkthrough() {
+  if (!state.isOnboarded) {
+    // If not onboarded, at least show minimal setup
+    showWalkthroughStep(6);
+  } else {
+    state.hasSeenWalkthrough = true;
+    await saveState();
+    showScreen('main');
+    updateMainScreen();
+  }
+}
+
+// Finish walkthrough
+async function finishWalkthrough() {
+  const role = document.getElementById('walkthroughRole').value;
+  const industry = document.getElementById('walkthroughIndustry').value;
+  
+  if (!role || !industry) {
+    // Highlight required fields
+    if (!role) document.getElementById('walkthroughRole').style.borderColor = '#EF4444';
+    if (!industry) document.getElementById('walkthroughIndustry').style.borderColor = '#EF4444';
+    return;
+  }
+  
+  state.userProfile.role = role;
+  state.userProfile.industry = industry;
+  state.isOnboarded = true;
+  state.hasSeenWalkthrough = true;
+  
+  await saveState();
+  showScreen('main');
+  updateMainScreen();
+}
+
 // Setup event listeners
 function setupEventListeners() {
-  // Onboarding navigation
-  document.getElementById('nextStep1').addEventListener('click', () => {
+  // Legacy onboarding navigation (kept for backwards compatibility)
+  document.getElementById('nextStep1Legacy')?.addEventListener('click', () => {
     const role = document.getElementById('userRole').value;
     if (role) {
       state.userProfile.role = role;
@@ -106,16 +195,17 @@ function setupEventListeners() {
     }
   });
 
-  document.getElementById('backStep2').addEventListener('click', () => {
+  document.getElementById('backStep2Legacy')?.addEventListener('click', () => {
     document.getElementById('step2').classList.add('hidden');
     document.getElementById('step1').classList.remove('hidden');
   });
 
-  document.getElementById('finishSetup').addEventListener('click', async () => {
+  document.getElementById('finishSetup')?.addEventListener('click', async () => {
     const industry = document.getElementById('userIndustry').value;
     if (industry) {
       state.userProfile.industry = industry;
       state.isOnboarded = true;
+      state.hasSeenWalkthrough = true;
       await saveState();
       showScreen('main');
       updateMainScreen();
@@ -175,12 +265,14 @@ function setupEventListeners() {
     if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
       state = {
         isOnboarded: false,
+        hasSeenWalkthrough: false,
         userProfile: { role: '', industry: '' },
         settings: { autoEnhance: true, showWidget: true },
         history: []
       };
       await saveState();
-      showScreen('onboarding');
+      showScreen('walkthrough');
+      showWalkthroughStep(1);
     }
   });
 
