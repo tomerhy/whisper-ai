@@ -1,0 +1,15 @@
+{
+  "name": "whisper-ai",
+  "version": "1.0.0",
+  "description": "Whisper AI - Smart Prompt Builder Chrome Extension",
+  "private": true,
+  "scripts": {
+    "generate-icons": "node scripts/generate-icons.js",
+    "build": "npm run generate-icons"
+  },
+  "devDependencies": {
+    "canvas": "^2.11.2"
+  },
+  "author": "",
+  "license": "MIT"
+}

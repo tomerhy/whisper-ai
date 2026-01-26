@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Whisper AI Icon Generator</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    h1 { color: #818CF8; }
+    .icon-preview {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+    .icon-box {
+      text-align: center;
+      background: #2a2a2a;
+      padding: 20px;
+      border-radius: 12px;
+    }
+    .icon-box canvas {
+      display: block;
+      margin: 0 auto 10px;
+      border-radius: 8px;
+    }
+    .icon-box span {
+      color: #888;
+      font-size: 14px;
+    }
+    button {
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+    }
+    .instructions {
+      background: #2a2a2a;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+    }
+    .instructions h3 { color: #10B981; margin-top: 0; }
+    .instructions code {
+      background: #1a1a1a;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>⚡ Whisper AI Icon Generator</h1>
+  <p>Generate PNG icons for the Chrome extension.</p>
+  
+  <div class="icon-preview" id="preview"></div>
+  
+  <button onclick="downloadAll()">Download All Icons</button>
+  
+  <div class="instructions">
+    <h3>Instructions</h3>
+    <ol>
+      <li>Open this file in a browser</li>
+      <li>Click "Download All Icons" to get the PNG files</li>
+      <li>Place the downloaded files in the <code>assets/icons/</code> folder</li>
+    </ol>
+  </div>
+
+  <script>
+    const sizes = [16, 32, 48, 128];
+    
+    function drawIcon(ctx, size) {
+      const scale = size / 128;
+      
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#6366F1');
+      gradient.addColorStop(1, '#8B5CF6');
+      
+      // Circle background
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Lightning bolt
+      ctx.fillStyle = 'white';
+      ctx.beginPath();
+      ctx.moveTo(68 * scale, 28 * scale);
+      ctx.lineTo(38 * scale, 68 * scale);
+      ctx.lineTo(58 * scale, 68 * scale);
+      ctx.lineTo(54 * scale, 100 * scale);
+      ctx.lineTo(88 * scale, 56 * scale);
+      ctx.lineTo(66 * scale, 56 * scale);
+      ctx.closePath();
+      ctx.fill();
+    }
+    
+    function createIcon(size) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      drawIcon(ctx, size);
+      return canvas;
+    }
+    
+    // Generate preview
+    const preview = document.getElementById('preview');
+    sizes.forEach(size => {
+      const box = document.createElement('div');
+      box.className = 'icon-box';
+      
+      const canvas = createIcon(size);
+      box.appendChild(canvas);
+      
+      const label = document.createElement('span');
+      label.textContent = `${size}x${size}`;
+      box.appendChild(label);
+      
+      preview.appendChild(box);
+    });
+    
+    function downloadAll() {
+      sizes.forEach(size => {
+        const canvas = createIcon(size);
+        const link = document.createElement('a');
+        link.download = `icon${size}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+  </script>
+</body>
+</html>

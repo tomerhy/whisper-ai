@@ -1,0 +1,512 @@
+/* ===== Whisper AI Floating Widget Styles ===== */
+
+/* CSS Variables */
+.whisper-widget,
+.whisper-widget * {
+  --whisper-primary: #6366F1;
+  --whisper-primary-light: #818CF8;
+  --whisper-primary-dark: #4F46E5;
+  --whisper-primary-glow: rgba(99, 102, 241, 0.3);
+  
+  --whisper-accent: #8B5CF6;
+  
+  --whisper-success: #10B981;
+  --whisper-warning: #F59E0B;
+  --whisper-danger: #EF4444;
+  
+  --whisper-bg: #16161D;
+  --whisper-bg-secondary: #1E1E27;
+  --whisper-bg-elevated: #252530;
+  
+  --whisper-text: #FFFFFF;
+  --whisper-text-secondary: #A1A1AA;
+  --whisper-text-tertiary: #71717A;
+  
+  --whisper-border: rgba(255, 255, 255, 0.1);
+  
+  --whisper-radius: 12px;
+  --whisper-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  
+  box-sizing: border-box;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Reset for widget elements */
+.whisper-widget *,
+.whisper-widget *::before,
+.whisper-widget *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ===== Floating Trigger Button ===== */
+.whisper-trigger {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2147483647;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--whisper-primary) 0%, var(--whisper-accent) 100%);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px var(--whisper-primary-glow), 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: whisper-fade-in 0.3s ease;
+}
+
+.whisper-trigger:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 28px var(--whisper-primary-glow), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.whisper-trigger:active {
+  transform: scale(0.95);
+}
+
+.whisper-trigger svg {
+  width: 24px;
+  height: 24px;
+  color: white;
+}
+
+.whisper-trigger.has-suggestion {
+  animation: whisper-pulse 2s infinite;
+}
+
+@keyframes whisper-pulse {
+  0%, 100% { box-shadow: 0 4px 20px var(--whisper-primary-glow), 0 2px 8px rgba(0, 0, 0, 0.3); }
+  50% { box-shadow: 0 4px 30px rgba(99, 102, 241, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3); }
+}
+
+@keyframes whisper-fade-in {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ===== Main Widget Panel ===== */
+.whisper-widget {
+  position: fixed;
+  bottom: 90px;
+  right: 24px;
+  z-index: 2147483647;
+  width: 360px;
+  max-height: 500px;
+  background: var(--whisper-bg);
+  border-radius: var(--whisper-radius);
+  box-shadow: var(--whisper-shadow);
+  overflow: hidden;
+  animation: whisper-slide-up 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.whisper-widget.hidden {
+  display: none;
+}
+
+@keyframes whisper-slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Widget Header ===== */
+.whisper-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--whisper-bg-secondary);
+  border-bottom: 1px solid var(--whisper-border);
+}
+
+.whisper-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.whisper-logo-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--whisper-primary) 0%, var(--whisper-accent) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.whisper-logo-icon svg {
+  width: 16px;
+  height: 16px;
+  color: white;
+}
+
+.whisper-logo-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--whisper-text);
+}
+
+.whisper-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--whisper-text-tertiary);
+  transition: all 0.15s ease;
+}
+
+.whisper-close:hover {
+  background: var(--whisper-bg-elevated);
+  color: var(--whisper-text);
+}
+
+/* ===== Widget Content ===== */
+.whisper-content {
+  padding: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* ===== Original Prompt Section ===== */
+.whisper-section {
+  margin-bottom: 16px;
+}
+
+.whisper-section:last-child {
+  margin-bottom: 0;
+}
+
+.whisper-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.whisper-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--whisper-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.whisper-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.whisper-badge.improved {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--whisper-success);
+}
+
+.whisper-prompt-box {
+  padding: 12px;
+  background: var(--whisper-bg-secondary);
+  border: 1px solid var(--whisper-border);
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--whisper-text-secondary);
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.whisper-prompt-box.enhanced {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+  border-color: rgba(99, 102, 241, 0.2);
+  color: var(--whisper-text);
+}
+
+/* ===== Improvements List ===== */
+.whisper-improvements {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.whisper-improvement-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: var(--whisper-bg-elevated);
+  border-radius: 12px;
+  font-size: 11px;
+  color: var(--whisper-text-secondary);
+}
+
+.whisper-improvement-tag svg {
+  width: 12px;
+  height: 12px;
+  color: var(--whisper-success);
+}
+
+/* ===== Action Buttons ===== */
+.whisper-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--whisper-border);
+}
+
+.whisper-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+}
+
+.whisper-btn-primary {
+  background: linear-gradient(135deg, var(--whisper-primary) 0%, var(--whisper-accent) 100%);
+  color: white;
+}
+
+.whisper-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px var(--whisper-primary-glow);
+}
+
+.whisper-btn-secondary {
+  background: var(--whisper-bg-secondary);
+  color: var(--whisper-text-secondary);
+  border: 1px solid var(--whisper-border);
+}
+
+.whisper-btn-secondary:hover {
+  background: var(--whisper-bg-elevated);
+  color: var(--whisper-text);
+}
+
+.whisper-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ===== Info Box ===== */
+.whisper-info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.whisper-info-box svg {
+  flex-shrink: 0;
+  color: var(--whisper-primary-light);
+  margin-top: 1px;
+}
+
+.whisper-info-box span {
+  font-size: 12px;
+  color: var(--whisper-text-secondary);
+  line-height: 1.5;
+}
+
+/* ===== Prompt Box Variants ===== */
+.whisper-prompt-box.whisper-prompt-small {
+  max-height: 60px;
+  font-size: 12px;
+}
+
+/* ===== Loading State ===== */
+.whisper-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  gap: 16px;
+}
+
+.whisper-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--whisper-bg-elevated);
+  border-top-color: var(--whisper-primary);
+  border-radius: 50%;
+  animation: whisper-spin 0.8s linear infinite;
+}
+
+@keyframes whisper-spin {
+  to { transform: rotate(360deg); }
+}
+
+.whisper-loading-text {
+  font-size: 13px;
+  color: var(--whisper-text-secondary);
+}
+
+.whisper-loading-subtext {
+  font-size: 11px;
+  color: var(--whisper-text-tertiary);
+}
+
+/* ===== Error State ===== */
+.whisper-error {
+  padding: 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.whisper-error-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--whisper-danger);
+  flex-shrink: 0;
+}
+
+.whisper-error-content {
+  flex: 1;
+}
+
+.whisper-error-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--whisper-danger);
+  margin-bottom: 4px;
+}
+
+.whisper-error-message {
+  font-size: 12px;
+  color: var(--whisper-text-secondary);
+  line-height: 1.4;
+}
+
+/* ===== Quick Enhance Button (inline) ===== */
+.whisper-quick-enhance {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, var(--whisper-primary) 0%, var(--whisper-accent) 100%);
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 2px 12px var(--whisper-primary-glow);
+  transition: all 0.15s ease;
+  z-index: 2147483646;
+  opacity: 0;
+  transform: translateY(4px);
+  pointer-events: none;
+}
+
+.whisper-quick-enhance.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.whisper-quick-enhance:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px var(--whisper-primary-glow);
+}
+
+.whisper-quick-enhance svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ===== Toast Notifications ===== */
+.whisper-toast {
+  position: fixed;
+  bottom: 90px;
+  right: 24px;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--whisper-bg);
+  border: 1px solid var(--whisper-border);
+  border-radius: 10px;
+  box-shadow: var(--whisper-shadow);
+  animation: whisper-toast-in 0.25s ease;
+}
+
+.whisper-toast.success {
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.whisper-toast.error {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.whisper-toast-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.whisper-toast.success .whisper-toast-icon {
+  color: var(--whisper-success);
+}
+
+.whisper-toast.error .whisper-toast-icon {
+  color: var(--whisper-danger);
+}
+
+.whisper-toast-message {
+  font-size: 13px;
+  color: var(--whisper-text);
+}
+
+@keyframes whisper-toast-in {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ===== Scrollbar ===== */
+.whisper-widget ::-webkit-scrollbar {
+  width: 5px;
+}
+
+.whisper-widget ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.whisper-widget ::-webkit-scrollbar-thumb {
+  background: var(--whisper-bg-elevated);
+  border-radius: 3px;
+}
+
+.whisper-widget ::-webkit-scrollbar-thumb:hover {
+  background: var(--whisper-text-tertiary);
+}
