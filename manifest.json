@@ -5,8 +5,7 @@
   "description": "Enhance your AI prompts instantly. Get better results from ChatGPT, Claude, Gemini, and Grok with smart prompt suggestions.",
   "permissions": [
     "storage",
-    "activeTab",
-    "scripting"
+    "activeTab"
   ],
   "host_permissions": [
     "https://chat.openai.com/*",
