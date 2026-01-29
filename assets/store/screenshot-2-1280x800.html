@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Screenshot 2 - Before & After</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0a0a0a;
+      font-family: 'Outfit', sans-serif;
+    }
+    .screenshot {
+      width: 1280px;
+      height: 800px;
+      background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .screenshot::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: 
+        radial-gradient(circle at 25% 50%, rgba(239, 68, 68, 0.08) 0%, transparent 35%),
+        radial-gradient(circle at 75% 50%, rgba(34, 197, 94, 0.08) 0%, transparent 35%),
+        radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+    }
+    .header {
+      z-index: 1;
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    .header h1 {
+      font-size: 42px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 12px;
+    }
+    .header p {
+      font-size: 20px;
+      color: #a5b4fc;
+    }
+    .comparison {
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 50px;
+    }
+    .card {
+      width: 420px;
+      background: #1f2937;
+      border-radius: 20px;
+      padding: 36px;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .card-label {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-label.before { color: #f87171; }
+    .card-label.after { color: #4ade80; }
+    .card-label .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .card-label.before .dot { background: #f87171; }
+    .card-label.after .dot { background: #4ade80; }
+    .card-text {
+      font-size: 20px;
+      line-height: 1.6;
+      color: #e5e7eb;
+    }
+    .card.before .card-text {
+      font-style: italic;
+      color: #9ca3af;
+    }
+    .arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .arrow-circle {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 40px rgba(99, 102, 241, 0.5);
+    }
+    .arrow-circle svg {
+      width: 32px;
+      height: 32px;
+      color: white;
+    }
+    .arrow-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: #a5b4fc;
+    }
+  </style>
+</head>
+<body>
+  <div class="screenshot">
+    <div class="header">
+      <h1>Transform Your Prompts</h1>
+      <p>From vague to powerful in one click</p>
+    </div>
+    <div class="comparison">
+      <div class="card before">
+        <div class="card-label before">
+          <span class="dot"></span>
+          Before
+        </div>
+        <div class="card-text">"explain kubernetes"</div>
+      </div>
+      <div class="arrow">
+        <div class="arrow-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </div>
+        <div class="arrow-label">Whisper AI</div>
+      </div>
+      <div class="card after">
+        <div class="card-label after">
+          <span class="dot"></span>
+          After
+        </div>
+        <div class="card-text">"You are a senior DevOps engineer. Explain Kubernetes in simple terms, including: what problems it solves, key components (pods, nodes, clusters), and when to use it vs Docker Compose. Include a practical example for a web app."</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

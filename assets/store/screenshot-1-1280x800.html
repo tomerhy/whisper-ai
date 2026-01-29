@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Screenshot 1 - Sharpen Button</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0a0a0a;
+      font-family: 'Outfit', sans-serif;
+    }
+    .screenshot {
+      width: 1280px;
+      height: 800px;
+      background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .screenshot::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 40%);
+    }
+    .content {
+      z-index: 1;
+      text-align: center;
+    }
+    .mockup {
+      width: 900px;
+      background: #1f2937;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 30px 100px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 40px;
+    }
+    .browser-bar {
+      height: 48px;
+      background: #374151;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 10px;
+    }
+    .dot { width: 14px; height: 14px; border-radius: 50%; }
+    .dot.r { background: #ef4444; }
+    .dot.y { background: #f59e0b; }
+    .dot.g { background: #22c55e; }
+    .url-bar {
+      flex: 1;
+      background: #1f2937;
+      border-radius: 8px;
+      padding: 8px 14px;
+      margin-left: 16px;
+      font-size: 14px;
+      color: #9ca3af;
+    }
+    .browser-content {
+      padding: 50px;
+      background: #111827;
+      min-height: 380px;
+    }
+    .input-box {
+      background: #1f2937;
+      border-radius: 16px;
+      padding: 28px;
+      position: relative;
+      border: 1px solid #374151;
+    }
+    .input-text {
+      color: #d1d5db;
+      font-size: 18px;
+      margin-bottom: 70px;
+    }
+    .sharpen-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A855F7 100%);
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: 600;
+      color: white;
+      box-shadow: 
+        0 4px 24px rgba(99, 102, 241, 0.6),
+        0 0 60px rgba(139, 92, 246, 0.4);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 4px 24px rgba(99, 102, 241, 0.6), 0 0 60px rgba(139, 92, 246, 0.4); }
+      50% { box-shadow: 0 6px 32px rgba(99, 102, 241, 0.8), 0 0 80px rgba(139, 92, 246, 0.6); }
+    }
+    .sharpen-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+    .caption {
+      font-size: 28px;
+      font-weight: 600;
+      color: #a5b4fc;
+    }
+  </style>
+</head>
+<body>
+  <div class="screenshot">
+    <div class="content">
+      <div class="mockup">
+        <div class="browser-bar">
+          <div class="dot r"></div>
+          <div class="dot y"></div>
+          <div class="dot g"></div>
+          <div class="url-bar">chatgpt.com</div>
+        </div>
+        <div class="browser-content">
+          <div class="input-box">
+            <div class="input-text">explain how kubernetes works and when should I use it...</div>
+            <div class="sharpen-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+              Sharpen
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="caption">Click "Sharpen" to enhance any prompt instantly</div>
+    </div>
+  </div>
+</body>
+</html>

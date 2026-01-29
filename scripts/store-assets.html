@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whisper AI - Store Assets Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #1a1a2e;
+      padding: 40px;
+      color: white;
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      color: #a5b4fc;
+    }
+    
+    .instructions {
+      text-align: center;
+      margin-bottom: 40px;
+      color: #94a3b8;
+      font-size: 14px;
+    }
+    
+    .asset-section {
+      margin-bottom: 60px;
+    }
+    
+    .asset-label {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #a5b4fc;
+    }
+    
+    .asset-size {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 20px;
+    }
+    
+    /* ===== Small Promo Tile 440x280 ===== */
+    .small-promo {
+      width: 440px;
+      height: 280px;
+      background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #A855F7 100%);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .small-promo::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 50%);
+    }
+    
+    .small-promo .logo-icon {
+      width: 80px;
+      height: 80px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .small-promo .logo-icon svg {
+      width: 50px;
+      height: 50px;
+    }
+    
+    .small-promo h2 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    
+    .small-promo p {
+      font-size: 16px;
+      opacity: 0.9;
+      font-weight: 400;
+    }
+    
+    /* ===== Marquee Promo Tile 1400x560 ===== */
+    .marquee-promo {
+      width: 1400px;
+      height: 560px;
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 60px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .marquee-promo::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+    }
+    
+    .marquee-promo::after {
+      content: '';
+      position: absolute;
+      bottom: -20%;
+      left: 10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+    }
+    
+    .marquee-left {
+      z-index: 1;
+      max-width: 550px;
+    }
+    
+    .marquee-logo {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+    
+    .marquee-logo .icon-box {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4);
+    }
+    
+    .marquee-logo .icon-box svg {
+      width: 40px;
+      height: 40px;
+    }
+    
+    .marquee-logo span {
+      font-size: 28px;
+      font-weight: 700;
+    }
+    
+    .marquee-left h2 {
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, #fff 0%, #c7d2fe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .marquee-left p {
+      font-size: 20px;
+      color: #a5b4fc;
+      line-height: 1.5;
+      margin-bottom: 40px;
+    }
+    
+    .platforms-row {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    
+    .platform-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 500;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .platform-badge svg {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .marquee-right {
+      z-index: 1;
+      position: relative;
+    }
+    
+    .mockup-browser {
+      width: 580px;
+      background: #1f2937;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .browser-header {
+      height: 36px;
+      background: #374151;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 8px;
+    }
+    
+    .browser-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    
+    .browser-dot.red { background: #ef4444; }
+    .browser-dot.yellow { background: #f59e0b; }
+    .browser-dot.green { background: #22c55e; }
+    
+    .browser-content {
+      padding: 30px;
+      background: #111827;
+    }
+    
+    .fake-input {
+      background: #1f2937;
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+      border: 1px solid #374151;
+    }
+    
+    .fake-input-text {
+      color: #9ca3af;
+      font-size: 15px;
+      margin-bottom: 50px;
+    }
+    
+    .sharpen-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A855F7 100%);
+      border-radius: 25px;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.5), 0 0 40px rgba(139, 92, 246, 0.3);
+    }
+    
+    .sharpen-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ===== Screenshot 1: Sharpen Button ===== */
+    .screenshot-1 {
+      width: 1280px;
+      height: 800px;
+      background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .screenshot-1::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 40%);
+    }
+    
+    .screenshot-content {
+      z-index: 1;
+      text-align: center;
+    }
+    
+    .screenshot-1 .big-mockup {
+      width: 900px;
+      background: #1f2937;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 30px 100px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 40px;
+    }
+    
+    .screenshot-1 .browser-header {
+      height: 44px;
+      padding: 0 16px;
+    }
+    
+    .screenshot-1 .browser-url {
+      flex: 1;
+      background: #1f2937;
+      border-radius: 6px;
+      padding: 6px 12px;
+      margin-left: 20px;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+    
+    .screenshot-1 .browser-content {
+      padding: 40px;
+      min-height: 350px;
+    }
+    
+    .screenshot-1 .fake-input {
+      padding: 24px;
+    }
+    
+    .screenshot-1 .fake-input-text {
+      font-size: 17px;
+      margin-bottom: 60px;
+    }
+    
+    .screenshot-1 .sharpen-btn {
+      padding: 12px 22px;
+      font-size: 16px;
+    }
+    
+    .screenshot-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: #a5b4fc;
+    }
+
+    /* ===== Screenshot 2: Result Widget ===== */
+    .screenshot-2 {
+      width: 1280px;
+      height: 800px;
+      background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 60px;
+      position: relative;
+      overflow: hidden;
+      padding: 60px;
+    }
+    
+    .screenshot-2::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 30% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 70% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 40%);
+    }
+    
+    .before-after-card {
+      z-index: 1;
+      background: #1f2937;
+      border-radius: 16px;
+      padding: 32px;
+      width: 500px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .card-label {
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+    
+    .card-label.before { color: #f87171; }
+    .card-label.after { color: #4ade80; }
+    
+    .card-text {
+      font-size: 18px;
+      line-height: 1.6;
+      color: #e5e7eb;
+    }
+    
+    .arrow-container {
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .arrow-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
+    }
+    
+    .arrow-icon svg {
+      width: 28px;
+      height: 28px;
+    }
+    
+    .arrow-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: #a5b4fc;
+    }
+
+    /* ===== Screenshot 3: Popup ===== */
+    .screenshot-3 {
+      width: 1280px;
+      height: 800px;
+      background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .screenshot-3::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%);
+    }
+    
+    .popup-mockup {
+      z-index: 1;
+      width: 380px;
+      background: #1a1a2e;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 30px 100px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    
+    .popup-header {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .popup-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .popup-logo .icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .popup-logo .icon svg {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .popup-logo span {
+      font-weight: 600;
+      font-size: 16px;
+    }
+    
+    .popup-badge {
+      font-size: 11px;
+      padding: 4px 8px;
+      background: rgba(99, 102, 241, 0.2);
+      border-radius: 10px;
+      color: #a5b4fc;
+    }
+    
+    .popup-body {
+      padding: 20px;
+    }
+    
+    .status-card {
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #4ade80;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .status-text {
+      font-size: 13px;
+      color: #a5b4fc;
+    }
+    
+    .platform-icons {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .platform-icon-small {
+      width: 24px;
+      height: 24px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .platform-icon-small.active {
+      background: rgba(99, 102, 241, 0.3);
+      border: 1px solid rgba(99, 102, 241, 0.5);
+    }
+    
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 12px;
+    }
+    
+    .templates-grid-mock {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .template-card-mock {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    .template-emoji {
+      font-size: 20px;
+    }
+    
+    .template-name {
+      font-size: 13px;
+      font-weight: 500;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .action-btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    .action-btn.primary {
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+    }
+    
+    .action-btn.secondary {
+      background: rgba(255,255,255,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Whisper AI - Store Assets</h1>
+  <p class="instructions">Right-click each asset and "Save image as..." or take a screenshot of each section</p>
+
+  <!-- Small Promo Tile 440x280 -->
+  <div class="asset-section">
+    <div class="asset-label">Small Promo Tile</div>
+    <div class="asset-size">440 x 280 px</div>
+    <div class="small-promo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+      </div>
+      <h2>Whisper AI</h2>
+      <p>Better prompts. Better results.</p>
+    </div>
+  </div>
+
+  <!-- Marquee Promo Tile 1400x560 -->
+  <div class="asset-section">
+    <div class="asset-label">Marquee Promo Tile</div>
+    <div class="asset-size">1400 x 560 px</div>
+    <div class="marquee-promo">
+      <div class="marquee-left">
+        <div class="marquee-logo">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
+          <span>Whisper AI</span>
+        </div>
+        <h2>One Click to Better AI Prompts</h2>
+        <p>Transform vague questions into powerful prompts. Get better responses from ChatGPT, Claude, Gemini & Grok.</p>
+        <div class="platforms-row">
+          <div class="platform-badge">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.28 9.82a5.98 5.98 0 0 0-.52-4.91 6.05 6.05 0 0 0-6.51-2.9A6.07 6.07 0 0 0 4.98 4.18a5.98 5.98 0 0 0-4 2.9 6.05 6.05 0 0 0 .74 7.1 5.98 5.98 0 0 0 .51 4.91 6.05 6.05 0 0 0 6.51 2.9A5.98 5.98 0 0 0 13.26 24a6.06 6.06 0 0 0 5.77-4.21 5.99 5.99 0 0 0 4-2.9 6.06 6.06 0 0 0-.75-7.07z"/></svg>
+            ChatGPT
+          </div>
+          <div class="platform-badge">
+            <span>🤖</span>
+            Claude
+          </div>
+          <div class="platform-badge">
+            <span>✨</span>
+            Gemini
+          </div>
+          <div class="platform-badge">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            Grok
+          </div>
+        </div>
+      </div>
+      <div class="marquee-right">
+        <div class="mockup-browser">
+          <div class="browser-header">
+            <div class="browser-dot red"></div>
+            <div class="browser-dot yellow"></div>
+            <div class="browser-dot green"></div>
+          </div>
+          <div class="browser-content">
+            <div class="fake-input">
+              <div class="fake-input-text">explain how kubernetes works...</div>
+              <div class="sharpen-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+                Sharpen
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screenshot 1: Sharpen Button -->
+  <div class="asset-section">
+    <div class="asset-label">Screenshot 1: Sharpen Button</div>
+    <div class="asset-size">1280 x 800 px</div>
+    <div class="screenshot-1">
+      <div class="screenshot-content">
+        <div class="big-mockup">
+          <div class="browser-header">
+            <div class="browser-dot red"></div>
+            <div class="browser-dot yellow"></div>
+            <div class="browser-dot green"></div>
+            <div class="browser-url">chatgpt.com</div>
+          </div>
+          <div class="browser-content">
+            <div class="fake-input">
+              <div class="fake-input-text">explain how kubernetes works and when should I use it...</div>
+              <div class="sharpen-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+                Sharpen
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screenshot-title">Click "Sharpen" to enhance any prompt instantly</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screenshot 2: Before/After -->
+  <div class="asset-section">
+    <div class="asset-label">Screenshot 2: Before & After</div>
+    <div class="asset-size">1280 x 800 px</div>
+    <div class="screenshot-2">
+      <div class="before-after-card">
+        <div class="card-label before">Before</div>
+        <div class="card-text">"explain kubernetes"</div>
+      </div>
+      <div class="arrow-container">
+        <div class="arrow-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </div>
+        <div class="arrow-text">Whisper AI</div>
+      </div>
+      <div class="before-after-card">
+        <div class="card-label after">After</div>
+        <div class="card-text">"You are a senior DevOps engineer. Explain Kubernetes in simple terms, including: what problems it solves, key components, and when to use it vs alternatives. Include a practical example."</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screenshot 3: Popup -->
+  <div class="asset-section">
+    <div class="asset-label">Screenshot 3: Extension Popup</div>
+    <div class="asset-size">1280 x 800 px</div>
+    <div class="screenshot-3">
+      <div class="popup-mockup">
+        <div class="popup-header">
+          <div class="popup-logo">
+            <div class="icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+            </div>
+            <span>Whisper AI</span>
+          </div>
+          <div class="popup-badge">v2.0.0</div>
+        </div>
+        <div class="popup-body">
+          <div class="status-card">
+            <div class="status-left">
+              <div class="status-dot"></div>
+              <span class="status-text">Active on ChatGPT</span>
+            </div>
+            <div class="platform-icons">
+              <div class="platform-icon-small active">💬</div>
+              <div class="platform-icon-small">🤖</div>
+              <div class="platform-icon-small">✨</div>
+              <div class="platform-icon-small">𝕏</div>
+            </div>
+          </div>
+          
+          <div class="section-title">Quick Templates</div>
+          <div class="templates-grid-mock">
+            <div class="template-card-mock">
+              <span class="template-emoji">🔍</span>
+              <span class="template-name">Review Code</span>
+            </div>
+            <div class="template-card-mock">
+              <span class="template-emoji">🐛</span>
+              <span class="template-name">Fix Bug</span>
+            </div>
+            <div class="template-card-mock">
+              <span class="template-emoji">📧</span>
+              <span class="template-name">Write Email</span>
+            </div>
+            <div class="template-card-mock">
+              <span class="template-emoji">💡</span>
+              <span class="template-name">Explain</span>
+            </div>
+          </div>
+          
+          <div class="action-buttons">
+            <div class="action-btn primary">⚡ Enhance Prompt</div>
+            <div class="action-btn secondary">📚 Templates</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

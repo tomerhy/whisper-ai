@@ -207,6 +207,7 @@ function setupEventListeners() {
       }
     });
   });
+
 }
 
 function updateMainScreen() {
@@ -289,23 +290,29 @@ function useQuickTemplate(index) {
   if (!template) return;
 
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.tabs.sendMessage(tabs[0].id, {
-      action: 'insertTemplate',
-      template: template.prompt
-    });
+    if (tabs[0]?.id) {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: 'insertTemplate',
+        template: template.prompt
+      }, () => {
+        window.close();
+      });
+    }
   });
-  window.close();
 }
 
 // Trigger enhancement on current prompt
 function triggerEnhancement() {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.tabs.sendMessage(tabs[0].id, {
-      action: 'enhancePrompt',
-      userProfile: state.userProfile
-    });
+    if (tabs[0]?.id) {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: 'enhancePrompt',
+        userProfile: state.userProfile
+      }, () => {
+        window.close();
+      });
+    }
   });
-  window.close();
 }
 
 function updateTip() {

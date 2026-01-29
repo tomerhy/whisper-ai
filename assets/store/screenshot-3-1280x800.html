@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Screenshot 3 - Popup UI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0a0a0a;
+      font-family: 'Outfit', sans-serif;
+    }
+    .screenshot {
+      width: 1280px;
+      height: 800px;
+      background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .screenshot::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%);
+    }
+    .left-text {
+      z-index: 1;
+      max-width: 420px;
+    }
+    .left-text h1 {
+      font-size: 48px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+    .left-text h1 span {
+      background: linear-gradient(135deg, #6366F1 0%, #A855F7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .left-text p {
+      font-size: 20px;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    .features {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 18px;
+      color: #e5e7eb;
+    }
+    .feature-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(99, 102, 241, 0.2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .popup {
+      z-index: 1;
+      width: 400px;
+      background: linear-gradient(180deg, #1a1a2e 0%, #0f172a 100%);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 30px 100px rgba(0,0,0,0.6), 0 0 80px rgba(99, 102, 241, 0.2);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .popup-header {
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .popup-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .popup-logo .icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .popup-logo .icon svg {
+      width: 24px;
+      height: 24px;
+    }
+    .popup-logo span {
+      font-weight: 600;
+      font-size: 18px;
+      color: white;
+    }
+    .badge {
+      font-size: 12px;
+      padding: 5px 10px;
+      background: rgba(99, 102, 241, 0.2);
+      border-radius: 12px;
+      color: #a5b4fc;
+      font-weight: 500;
+    }
+    .popup-body {
+      padding: 24px;
+    }
+    .status {
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      background: #4ade80;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+    }
+    .status-text {
+      font-size: 14px;
+      color: #a5b4fc;
+      font-weight: 500;
+    }
+    .platform-icons {
+      display: flex;
+      gap: 8px;
+    }
+    .pi {
+      width: 28px;
+      height: 28px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .pi.active {
+      background: rgba(99, 102, 241, 0.3);
+      border: 1px solid rgba(99, 102, 241, 0.5);
+    }
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .templates {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .template {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: all 0.2s;
+    }
+    .template:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+    .template-emoji {
+      font-size: 22px;
+    }
+    .template-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #e5e7eb;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+    }
+    .action-btn {
+      flex: 1;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      color: white;
+    }
+    .action-btn.primary {
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+    }
+    .action-btn.secondary {
+      background: rgba(255,255,255,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="screenshot">
+    <div class="left-text">
+      <h1>Your AI <span>Prompt Assistant</span></h1>
+      <p>Quick templates and one-click enhancement for better AI conversations.</p>
+      <div class="features">
+        <div class="feature">
+          <div class="feature-icon">⚡</div>
+          <span>One-click prompt enhancement</span>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">📚</div>
+          <span>12+ ready-to-use templates</span>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🔒</div>
+          <span>100% private, no data sent</span>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🌐</div>
+          <span>Works on 4 AI platforms</span>
+        </div>
+      </div>
+    </div>
+    <div class="popup">
+      <div class="popup-header">
+        <div class="popup-logo">
+          <div class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
+          <span>Whisper AI</span>
+        </div>
+        <div class="badge">v2.0.0</div>
+      </div>
+      <div class="popup-body">
+        <div class="status">
+          <div class="status-left">
+            <div class="status-dot"></div>
+            <span class="status-text">Active on ChatGPT</span>
+          </div>
+          <div class="platform-icons">
+            <div class="pi active">💬</div>
+            <div class="pi">🤖</div>
+            <div class="pi">✨</div>
+            <div class="pi">𝕏</div>
+          </div>
+        </div>
+        <div class="section-title">Quick Templates</div>
+        <div class="templates">
+          <div class="template">
+            <span class="template-emoji">🔍</span>
+            <span class="template-name">Review Code</span>
+          </div>
+          <div class="template">
+            <span class="template-emoji">🐛</span>
+            <span class="template-name">Fix Bug</span>
+          </div>
+          <div class="template">
+            <span class="template-emoji">📧</span>
+            <span class="template-name">Write Email</span>
+          </div>
+          <div class="template">
+            <span class="template-emoji">💡</span>
+            <span class="template-name">Explain</span>
+          </div>
+        </div>
+        <div class="actions">
+          <div class="action-btn primary">⚡ Sharpen Prompt</div>
+          <div class="action-btn secondary">📚 All Templates</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

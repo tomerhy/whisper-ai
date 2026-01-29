@@ -12,7 +12,8 @@
     "version:set": "node scripts/bump-version.js"
   },
   "devDependencies": {
-    "canvas": "^2.11.2"
+    "canvas": "^2.11.2",
+    "puppeteer": "^24.36.1"
   },
   "author": "",
   "license": "MIT"

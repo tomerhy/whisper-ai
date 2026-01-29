@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Marquee Promo Tile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0a0a0a;
+      font-family: 'Outfit', sans-serif;
+    }
+    .tile {
+      width: 1400px;
+      height: 560px;
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 60px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .tile::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%);
+    }
+    .tile::after {
+      content: '';
+      position: absolute;
+      bottom: -20%;
+      left: 10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+    }
+    .left {
+      z-index: 1;
+      max-width: 580px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .logo .icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 32px rgba(99, 102, 241, 0.5);
+    }
+    .logo .icon svg {
+      width: 38px;
+      height: 38px;
+    }
+    .logo span {
+      font-size: 32px;
+      font-weight: 700;
+      color: white;
+    }
+    h1 {
+      font-size: 56px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, #fff 0%, #c7d2fe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      font-size: 22px;
+      color: #a5b4fc;
+      line-height: 1.5;
+      margin-bottom: 40px;
+    }
+    .platforms {
+      display: flex;
+      gap: 14px;
+    }
+    .platform {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 30px;
+      font-size: 15px;
+      font-weight: 500;
+      color: white;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .platform svg, .platform span.emoji {
+      width: 22px;
+      height: 22px;
+      font-size: 18px;
+    }
+    .right {
+      z-index: 1;
+    }
+    .mockup {
+      width: 580px;
+      background: #1f2937;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .browser-bar {
+      height: 40px;
+      background: #374151;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 8px;
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot.r { background: #ef4444; }
+    .dot.y { background: #f59e0b; }
+    .dot.g { background: #22c55e; }
+    .browser-content {
+      padding: 32px;
+      background: #111827;
+    }
+    .input-box {
+      background: #1f2937;
+      border-radius: 14px;
+      padding: 24px;
+      position: relative;
+      border: 1px solid #374151;
+    }
+    .input-text {
+      color: #9ca3af;
+      font-size: 16px;
+      margin-bottom: 55px;
+    }
+    .sharpen-btn {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A855F7 100%);
+      border-radius: 25px;
+      font-size: 15px;
+      font-weight: 600;
+      color: white;
+      box-shadow: 0 4px 24px rgba(99, 102, 241, 0.6), 0 0 50px rgba(139, 92, 246, 0.4);
+    }
+    .sharpen-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="tile">
+    <div class="left">
+      <div class="logo">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+        </div>
+        <span>Whisper AI</span>
+      </div>
+      <h1>One Click to Better AI Prompts</h1>
+      <p class="subtitle">Transform vague questions into powerful prompts. Get better responses from ChatGPT, Claude, Gemini & Grok.</p>
+      <div class="platforms">
+        <div class="platform">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.28 9.82a5.98 5.98 0 0 0-.52-4.91 6.05 6.05 0 0 0-6.51-2.9A6.07 6.07 0 0 0 4.98 4.18a5.98 5.98 0 0 0-4 2.9 6.05 6.05 0 0 0 .74 7.1 5.98 5.98 0 0 0 .51 4.91 6.05 6.05 0 0 0 6.51 2.9A5.98 5.98 0 0 0 13.26 24a6.06 6.06 0 0 0 5.77-4.21 5.99 5.99 0 0 0 4-2.9 6.06 6.06 0 0 0-.75-7.07z"/></svg>
+          ChatGPT
+        </div>
+        <div class="platform">
+          <span class="emoji">🤖</span>
+          Claude
+        </div>
+        <div class="platform">
+          <span class="emoji">✨</span>
+          Gemini
+        </div>
+        <div class="platform">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          Grok
+        </div>
+      </div>
+    </div>
+    <div class="right">
+      <div class="mockup">
+        <div class="browser-bar">
+          <div class="dot r"></div>
+          <div class="dot y"></div>
+          <div class="dot g"></div>
+        </div>
+        <div class="browser-content">
+          <div class="input-box">
+            <div class="input-text">explain how kubernetes works...</div>
+            <div class="sharpen-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+              Sharpen
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
