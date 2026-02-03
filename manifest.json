@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Whisper AI - Smart Prompt Builder",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Enhance your AI prompts instantly. Get better results from ChatGPT, Claude, Gemini, and Grok with smart prompt suggestions.",
   "permissions": [
     "storage",
@@ -40,20 +40,39 @@
         "https://chat.openai.com/*",
         "https://chatgpt.com/*"
       ],
-      "js": ["content/lib/enhancer.js", "content/platforms/chatgpt.js"],
-      "css": ["styles/widget.css"],
+      "js": [
+        "content/lib/enhancer.js",
+        "content/platforms/chatgpt.js"
+      ],
+      "css": [
+        "styles/widget.css"
+      ],
       "run_at": "document_idle"
     },
     {
-      "matches": ["https://claude.ai/*"],
-      "js": ["content/lib/enhancer.js", "content/platforms/claude.js"],
-      "css": ["styles/widget.css"],
+      "matches": [
+        "https://claude.ai/*"
+      ],
+      "js": [
+        "content/lib/enhancer.js",
+        "content/platforms/claude.js"
+      ],
+      "css": [
+        "styles/widget.css"
+      ],
       "run_at": "document_idle"
     },
     {
-      "matches": ["https://gemini.google.com/*"],
-      "js": ["content/lib/enhancer.js", "content/platforms/gemini.js"],
-      "css": ["styles/widget.css"],
+      "matches": [
+        "https://gemini.google.com/*"
+      ],
+      "js": [
+        "content/lib/enhancer.js",
+        "content/platforms/gemini.js"
+      ],
+      "css": [
+        "styles/widget.css"
+      ],
       "run_at": "document_idle"
     },
     {
@@ -61,15 +80,25 @@
         "https://grok.com/*",
         "https://x.com/i/grok*"
       ],
-      "js": ["content/lib/enhancer.js", "content/platforms/grok.js"],
-      "css": ["styles/widget.css"],
+      "js": [
+        "content/lib/enhancer.js",
+        "content/platforms/grok.js"
+      ],
+      "css": [
+        "styles/widget.css"
+      ],
       "run_at": "document_idle"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["assets/*", "styles/*"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "assets/*",
+        "styles/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }

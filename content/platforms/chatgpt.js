@@ -126,7 +126,7 @@
     }
 
     const rect = textarea.getBoundingClientRect();
-    btn.style.cssText = `position:fixed;top:${rect.top+8}px;right:${window.innerWidth-rect.right+8}px;`;
+    btn.style.cssText = `position:fixed;bottom:${window.innerHeight-rect.top+12}px;right:${window.innerWidth-rect.right+8}px;`;
     btn.classList.add('visible');
   }
 
