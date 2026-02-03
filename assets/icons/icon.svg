@@ -4,21 +4,18 @@
       <stop stop-color="#6366F1"/>
       <stop offset="1" stop-color="#8B5CF6"/>
     </linearGradient>
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="4" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
   </defs>
   
-  <!-- Background circle -->
+  <!-- Background circle with purple gradient -->
   <circle cx="64" cy="64" r="64" fill="url(#bgGradient)"/>
   
-  <!-- Lightning bolt icon -->
-  <path d="M68 28L38 68H58L54 100L88 56H66L68 28Z" fill="white" filter="url(#glow)"/>
+  <!-- White circle frame -->
+  <circle cx="64" cy="64" r="54" fill="white"/>
   
-  <!-- Subtle inner glow -->
-  <circle cx="64" cy="64" r="56" fill="none" stroke="white" stroke-opacity="0.1" stroke-width="2"/>
+  <!-- Placeholder for photo - the actual icons use the photo -->
+  <circle cx="64" cy="64" r="48" fill="#E5E7EB"/>
+  
+  <!-- Silhouette placeholder -->
+  <circle cx="64" cy="52" r="16" fill="#9CA3AF"/>
+  <ellipse cx="64" cy="88" rx="24" ry="20" fill="#9CA3AF"/>
 </svg>
