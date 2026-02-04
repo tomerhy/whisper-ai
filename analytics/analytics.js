@@ -7,15 +7,15 @@
 
 const WhisperAnalytics = {
   // GA4 Configuration
-  MEASUREMENT_ID: 'G-R3HRJX6W8M',
-  API_SECRET: 'rN4Y-u6aRC6_NDu4VpRSng',
+  MEASUREMENT_ID: 'G-9T1SK3XEXL',
+  API_SECRET: 'NQ0b3kXMTumswL4TQWYYRg',
   
   // Endpoint
   ENDPOINT: 'https://www.google-analytics.com/mp/collect',
   DEBUG_ENDPOINT: 'https://www.google-analytics.com/debug/mp/collect',
   
-  // Debug mode (set to false in production)
-  DEBUG: false,
+  // Debug mode (set to true to see logs, false for production)
+  DEBUG: true,
   
   // Client ID (persisted)
   _clientId: null,
@@ -272,10 +272,10 @@ const WhisperAnalytics = {
   }
 };
 
-// Export for use in different contexts
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = WhisperAnalytics;
-}
+// ES Module export for service worker
+export { WhisperAnalytics };
+
+// Also expose globally for content scripts and popup
 if (typeof window !== 'undefined') {
   window.WhisperAnalytics = WhisperAnalytics;
 }

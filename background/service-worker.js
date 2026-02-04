@@ -1,8 +1,8 @@
 // ===== Whisper AI Background Service Worker =====
 // Uses native AI platform sessions - no API key required!
 
-// Import analytics
-importScripts('../analytics/analytics.js');
+// Import analytics (ES Module)
+import { WhisperAnalytics } from '../analytics/analytics.js';
 
 // Initialize analytics
 WhisperAnalytics.init();
