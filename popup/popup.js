@@ -1,5 +1,20 @@
 // ===== Whisper AI Popup Script - Super Simple =====
 
+// Analytics helper - sends events to background script
+const Analytics = {
+  track(event, params = {}) {
+    chrome.runtime.sendMessage({ action: 'analytics', event, params }).catch(() => {});
+  },
+  pageView(page) { this.track('page_view', { page }); },
+  buttonClick(button, location = 'popup') { this.track('button_click', { button, location }); },
+  screenView(screen) { this.track('screen_view', { screen }); },
+  templateSelected(name, category) { this.track('template_selected', { name, category }); },
+  walkthroughStep(step) { this.track('walkthrough_step', { step }); },
+  walkthroughCompleted(role, industry) { this.track('walkthrough_completed', { role, industry }); },
+  walkthroughSkipped(atStep) { this.track('walkthrough_skipped', { atStep }); },
+  settingsChanged(setting, value) { this.track('settings_changed', { setting, value: String(value) }); }
+};
+
 // Quick-start templates - just starting points that users can edit
 const QUICK_TEMPLATES = [
   { emoji: '🔍', name: 'Review Code', prompt: 'Review this code and tell me what to improve:\n\n' },
@@ -52,6 +67,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupEventListeners();
   setupWalkthroughListeners();
   detectCurrentPlatform();
+  
+  // Track popup opened
+  Analytics.pageView('popup');
 });
 
 async function loadState() {
@@ -86,6 +104,9 @@ function initializeUI() {
 function showScreen(screenName) {
   Object.values(screens).forEach(screen => screen.classList.add('hidden'));
   screens[screenName].classList.remove('hidden');
+  
+  // Track screen view
+  Analytics.screenView(screenName);
 }
 
 // Walkthrough
@@ -113,6 +134,9 @@ function showWalkthroughStep(step) {
   document.querySelectorAll('.walkthrough-step').forEach(s => s.classList.remove('active'));
   document.querySelector(`.walkthrough-step[data-step="${step}"]`)?.classList.add('active');
   
+  // Track walkthrough step
+  Analytics.walkthroughStep(step);
+  
   if (step === 6 && state.userProfile.role) {
     document.getElementById('walkthroughRole').value = state.userProfile.role;
     document.getElementById('walkthroughIndustry').value = state.userProfile.industry;
@@ -120,6 +144,8 @@ function showWalkthroughStep(step) {
 }
 
 async function skipWalkthrough() {
+  Analytics.walkthroughSkipped(currentWalkthroughStep);
+  
   if (!state.isOnboarded) {
     showWalkthroughStep(6);
   } else {
@@ -144,6 +170,10 @@ async function finishWalkthrough() {
   state.isOnboarded = true;
   state.hasSeenWalkthrough = true;
   await saveState();
+  
+  // Track walkthrough completed
+  Analytics.walkthroughCompleted(role, industry);
+  
   showScreen('main');
   updateMainScreen();
 }
@@ -151,23 +181,30 @@ async function finishWalkthrough() {
 // Event Listeners
 function setupEventListeners() {
   document.getElementById('settingsBtn').addEventListener('click', () => {
+    Analytics.buttonClick('settings', 'popup_header');
     populateSettings();
     showScreen('settings');
   });
 
-  document.getElementById('enhanceBtn').addEventListener('click', triggerEnhancement);
+  document.getElementById('enhanceBtn').addEventListener('click', () => {
+    Analytics.buttonClick('enhance', 'quick_actions');
+    triggerEnhancement();
+  });
   
   document.getElementById('templatesBtn').addEventListener('click', () => {
+    Analytics.buttonClick('templates', 'quick_actions');
     showScreen('templates');
     renderFullTemplates();
   });
 
   document.getElementById('historyBtn').addEventListener('click', () => {
+    Analytics.buttonClick('history', 'quick_actions');
     showScreen('history');
     renderHistory();
   });
 
   document.getElementById('seeAllTemplates').addEventListener('click', () => {
+    Analytics.buttonClick('see_all_templates', 'main_screen');
     showScreen('templates');
     renderFullTemplates();
   });
@@ -289,6 +326,9 @@ function useQuickTemplate(index) {
   const template = QUICK_TEMPLATES[index];
   if (!template) return;
 
+  // Track template selection
+  Analytics.templateSelected(template.name, 'quick_templates');
+
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs[0]?.id) {
       chrome.tabs.sendMessage(tabs[0].id, {
@@ -327,11 +367,28 @@ function populateSettings() {
 }
 
 async function saveSettings() {
+  const oldSettings = { ...state.settings };
+  const oldProfile = { ...state.userProfile };
+  
   state.userProfile.role = document.getElementById('settingsRole').value;
   state.userProfile.industry = document.getElementById('settingsIndustry').value;
   state.settings.autoEnhance = document.getElementById('autoEnhance').checked;
   state.settings.showWidget = document.getElementById('showWidget').checked;
   await saveState();
+  
+  // Track settings changes
+  if (oldProfile.role !== state.userProfile.role) {
+    Analytics.settingsChanged('role', state.userProfile.role);
+  }
+  if (oldProfile.industry !== state.userProfile.industry) {
+    Analytics.settingsChanged('industry', state.userProfile.industry);
+  }
+  if (oldSettings.autoEnhance !== state.settings.autoEnhance) {
+    Analytics.settingsChanged('auto_enhance', state.settings.autoEnhance);
+  }
+  if (oldSettings.showWidget !== state.settings.showWidget) {
+    Analytics.settingsChanged('show_widget', state.settings.showWidget);
+  }
   
   chrome.tabs.query({}, (tabs) => {
     tabs.forEach(tab => {

@@ -1,6 +1,12 @@
 // ===== Whisper AI Background Service Worker =====
 // Uses native AI platform sessions - no API key required!
 
+// Import analytics
+importScripts('../analytics/analytics.js');
+
+// Initialize analytics
+WhisperAnalytics.init();
+
 // Listen for messages from content scripts and popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getState') {
@@ -18,7 +24,40 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     sendResponse({ prompt: enhancementPrompt });
     return true;
   }
+  
+  // Analytics events from content scripts
+  if (request.action === 'analytics') {
+    handleAnalyticsEvent(request.event, request.params);
+    sendResponse({ success: true });
+    return true;
+  }
 });
+
+// Handle analytics events from content scripts
+function handleAnalyticsEvent(eventName, params = {}) {
+  switch (eventName) {
+    case 'prompt_enhanced':
+      WhisperAnalytics.promptEnhanced(params.platform, params.originalLength, params.enhancedLength);
+      break;
+    case 'enhancement_applied':
+      WhisperAnalytics.enhancementApplied(params.platform);
+      break;
+    case 'enhancement_rejected':
+      WhisperAnalytics.enhancementRejected(params.platform);
+      break;
+    case 'quick_enhance_clicked':
+      WhisperAnalytics.quickEnhanceClicked(params.platform);
+      break;
+    case 'floating_button_clicked':
+      WhisperAnalytics.floatingButtonClicked(params.platform);
+      break;
+    case 'platform_detected':
+      WhisperAnalytics.platformDetected(params.platform);
+      break;
+    default:
+      console.log('[Analytics] Unknown event:', eventName);
+  }
+}
 
 // Build the meta-prompt that asks the AI to enhance the user's prompt
 function buildEnhancementPrompt(originalPrompt, userProfile = {}) {
@@ -104,7 +143,13 @@ async function saveToHistory(entry) {
 
 // Install listener
 chrome.runtime.onInstalled.addListener((details) => {
+  const manifest = chrome.runtime.getManifest();
+  
   if (details.reason === 'install') {
     console.log('Whisper AI installed successfully!');
+    WhisperAnalytics.extensionInstalled(manifest.version, false);
+  } else if (details.reason === 'update') {
+    console.log(`Whisper AI updated to version ${manifest.version}`);
+    WhisperAnalytics.extensionInstalled(manifest.version, true);
   }
 });

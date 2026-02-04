@@ -13,6 +13,14 @@
   let userProfile = { role: '', industry: '' };
   let isEnhancing = false;
 
+  // Analytics helper
+  function trackEvent(event, params = {}) {
+    if (!isExtensionContextValid()) return;
+    try {
+      chrome.runtime.sendMessage({ action: 'analytics', event, params: { ...params, platform: PLATFORM } });
+    } catch (e) {}
+  }
+
   init();
 
   function init() {
@@ -22,6 +30,7 @@
     observeTextarea();
     listenForMessages();
     setupPositionUpdates();
+    trackEvent('platform_detected');
   }
 
   function loadSettings() {
@@ -147,6 +156,8 @@
     const textarea = getTextarea();
     currentPrompt = getTextareaContent(textarea);
     if (!currentPrompt.trim()) return;
+    
+    trackEvent('quick_enhance_clicked');
     hideQuickEnhanceButton();
     
     if (typeof WhisperEnhancer !== 'undefined') {
@@ -157,6 +168,7 @@
       aimBreakdown = { actor: 'a helpful expert', input: 'Request', mission: 'Help with this', guidance: 'Be specific.' };
     }
     
+    trackEvent('prompt_enhanced', { originalLength: currentPrompt.length, enhancedLength: enhancedPrompt.length });
     showWidget();
     saveToHistory();
   }
@@ -206,8 +218,8 @@
   function setupWidgetListeners() {
     const widget = document.getElementById('whisper-widget');
     if (!widget) return;
-    widget.querySelector('#whisper-close')?.addEventListener('click', hideWidget);
-    widget.querySelector('#whisper-cancel')?.addEventListener('click', hideWidget);
+    widget.querySelector('#whisper-close')?.addEventListener('click', () => hideWidget());
+    widget.querySelector('#whisper-cancel')?.addEventListener('click', () => hideWidget(true));
     widget.querySelector('#whisper-apply')?.addEventListener('click', applyEnhancedPrompt);
   }
 
@@ -218,11 +230,22 @@
     try { chrome.runtime.sendMessage({ action: 'saveHistory', data: { original: currentPrompt, enhanced: enhancedPrompt, platform: PLATFORM, date: new Date().toISOString() } }); } catch (e) {}
   }
 
-  function hideWidget() { document.getElementById('whisper-widget')?.classList.add('hidden'); widgetVisible = false; isEnhancing = false; }
+  function hideWidget(rejected = false) {
+    document.getElementById('whisper-widget')?.classList.add('hidden');
+    widgetVisible = false;
+    isEnhancing = false;
+    if (rejected) trackEvent('enhancement_rejected');
+  }
 
   function applyEnhancedPrompt() {
     const textarea = getTextarea();
-    if (textarea && enhancedPrompt) { setTextareaContent(textarea, enhancedPrompt); textarea.focus(); hideWidget(); showToast('Prompt sharpened!', 'success'); }
+    if (textarea && enhancedPrompt) {
+      setTextareaContent(textarea, enhancedPrompt);
+      textarea.focus();
+      trackEvent('enhancement_applied');
+      hideWidget();
+      showToast('Prompt sharpened!', 'success');
+    }
   }
 
   function showToast(message, type = 'success') {

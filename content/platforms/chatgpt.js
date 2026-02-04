@@ -13,6 +13,14 @@
   let userProfile = { role: '', industry: '' };
   let isEnhancing = false;
 
+  // Analytics helper
+  function trackEvent(event, params = {}) {
+    if (!isExtensionContextValid()) return;
+    try {
+      chrome.runtime.sendMessage({ action: 'analytics', event, params: { ...params, platform: PLATFORM } });
+    } catch (e) {}
+  }
+
   init();
 
   function init() {
@@ -22,6 +30,9 @@
     observeTextarea();
     listenForMessages();
     setupPositionUpdates();
+    
+    // Track platform detected
+    trackEvent('platform_detected');
   }
 
   function loadSettings() {
@@ -168,6 +179,9 @@
     currentPrompt = getTextareaContent(textarea);
     if (!currentPrompt.trim()) return;
     
+    // Track quick enhance clicked
+    trackEvent('quick_enhance_clicked');
+    
     hideQuickEnhanceButton();
     
     // Get AIM breakdown and enhance
@@ -178,6 +192,12 @@
       enhancedPrompt = currentPrompt + '\n\nPlease be specific and provide a clear, structured response.';
       aimBreakdown = { actor: 'a helpful expert', input: 'Request', mission: 'Help with this', guidance: 'Be specific.' };
     }
+    
+    // Track prompt enhanced
+    trackEvent('prompt_enhanced', {
+      originalLength: currentPrompt.length,
+      enhancedLength: enhancedPrompt.length
+    });
     
     showWidget('result');
     saveToHistory();
@@ -270,8 +290,8 @@
   function setupWidgetListeners() {
     const widget = document.getElementById('whisper-widget');
     if (!widget) return;
-    widget.querySelector('#whisper-close')?.addEventListener('click', hideWidget);
-    widget.querySelector('#whisper-cancel')?.addEventListener('click', hideWidget);
+    widget.querySelector('#whisper-close')?.addEventListener('click', () => hideWidget());
+    widget.querySelector('#whisper-cancel')?.addEventListener('click', () => hideWidget(true));
     widget.querySelector('#whisper-apply')?.addEventListener('click', applyEnhancedPrompt);
   }
 
@@ -289,10 +309,15 @@
     } catch (e) {}
   }
 
-  function hideWidget() {
+  function hideWidget(rejected = false) {
     document.getElementById('whisper-widget')?.classList.add('hidden');
     widgetVisible = false;
     isEnhancing = false;
+    
+    // Track enhancement rejected if user clicked "Keep Original"
+    if (rejected) {
+      trackEvent('enhancement_rejected');
+    }
   }
 
   function applyEnhancedPrompt() {
@@ -300,6 +325,10 @@
     if (textarea && enhancedPrompt) {
       setTextareaContent(textarea, enhancedPrompt);
       textarea.focus();
+      
+      // Track enhancement applied
+      trackEvent('enhancement_applied');
+      
       hideWidget();
       showToast('Prompt sharpened!', 'success');
     }
