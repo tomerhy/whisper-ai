@@ -15,7 +15,7 @@ const WhisperAnalytics = {
   DEBUG_ENDPOINT: 'https://www.google-analytics.com/debug/mp/collect',
   
   // Debug mode (set to true to see logs, false for production)
-  DEBUG: true,
+  DEBUG: false,
   
   // Client ID (persisted)
   _clientId: null,
@@ -80,6 +80,8 @@ const WhisperAnalytics = {
     };
     
     try {
+      console.log('[Analytics] Sending event:', eventName, params);
+      
       const response = await fetch(url, {
         method: 'POST',
         body: JSON.stringify(payload)
@@ -88,6 +90,8 @@ const WhisperAnalytics = {
       if (this.DEBUG) {
         const debugData = await response.json();
         console.log('[Analytics Debug]', eventName, debugData);
+      } else {
+        console.log('[Analytics] Event sent:', eventName, 'Status:', response.status);
       }
     } catch (error) {
       console.error('[Analytics] Error sending event:', error);
